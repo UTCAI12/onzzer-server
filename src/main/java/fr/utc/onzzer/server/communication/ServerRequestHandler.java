@@ -6,6 +6,7 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +22,12 @@ public class ServerRequestHandler {
         System.out.println("Server: send message to all registered users excluded : " + excluded);
         this.users.forEach((user, serverSocketManager) -> {
             if (excluded != user.getId()) {
-                serverSocketManager.send(message);
+                try {
+                    serverSocketManager.send(message);
+                } catch (IOException e) {
+                    System.out.println("Server: Not able to reach user, removing it from list");
+                    this.users.remove(user);
+                }
                 System.out.println("Server: sending to:" + user.getId());
             }
         });
@@ -41,7 +47,11 @@ public class ServerRequestHandler {
 
         // TODO : remove multiple message sending, send only one global message : SocketMessagesTypes.USER_CONNECTED
         SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(users.keySet()));
-        sender.send(m);
+        try {
+            sender.send(m);
+        } catch (IOException e) {
+            this.users.remove(userLite);
+        }
 
         /*
         this.users.forEach((registeredUser, handler) -> {
