@@ -1,4 +1,5 @@
 import java.util.UUID;
+import fr.utc.onzzer.common.dataclass.UserLite;
 
 public interface DataUserServices {
     UserLite getUser(UUID userId) throws Exception;
