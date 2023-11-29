@@ -1,3 +1,5 @@
+package fr.utc.onzzer.server.data.interfaces;
+
 import java.util.UUID;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
