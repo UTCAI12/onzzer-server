@@ -9,6 +9,13 @@
     <version>1.0.0</version>
     <name>onzzer-server</name>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.2</junit.version>
@@ -28,10 +35,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>fr.utc.onzzer</groupId>
+            <groupId>com.github.UTCAI12</groupId>
             <artifactId>onzzer-common</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
+            <version>dev-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
