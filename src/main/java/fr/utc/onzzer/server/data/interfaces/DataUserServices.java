@@ -14,5 +14,7 @@ public interface DataUserServices {
 
     void updateUser(UserLite user) throws UserLiteNotFoundException;
 
+    ServerSocketManager getSocket(UserLite user) throws UserLiteNotFoundException;
+
     List<UserLite> getAllUsers();
 }
