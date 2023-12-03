@@ -27,9 +27,9 @@ public class DataUserServicesImpl implements DataUserServices {
     }
 
     @Override
-    public void addUser(UserLite user) {
+    public void addUser(UserLite user, ServiceSocketManager ssm) {
         dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
-        dataRepository.getUsersAndSocket().put(user, new ServiceSocketManager(new Socket(), new ServerCommunicationController));
+        dataRepository.getUsersAndSocket().put(user, ssm);
     }
 
     @Override
