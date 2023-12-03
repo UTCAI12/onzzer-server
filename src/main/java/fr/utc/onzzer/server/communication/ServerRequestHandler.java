@@ -1,15 +1,13 @@
 package fr.utc.onzzer.server.communication;
 
-
+import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ServerRequestHandler {
 
@@ -32,6 +30,22 @@ public class ServerRequestHandler {
             }
         });
     }
+
+    public void sendMessageToUser(final SocketMessage message, final UserLite user) {
+        ServerSocketManager userSocketManager = users.get(user);
+        if (userSocketManager != null) {
+            try {
+                userSocketManager.send(message);
+                System.out.println("Server: GET_TRACK message sent to user: " + user.getUsername());
+            } catch (IOException e) {
+                System.out.println("Server: Not able to reach user " + user.getUsername());
+                users.remove(user); // Remove the user if we can't reach them
+            }
+        } else {
+            System.out.println("Server: User with ID " + user.getUsername() + " not found.");
+        }
+    }
+
 
     void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
         // update the local model with the new user
@@ -75,5 +89,32 @@ public class ServerRequestHandler {
     void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) {
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
         this.sendAllExclude(message, sender.getUser().getId());
+    }
+
+    public void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
+        UUID trackId = (UUID) message.object;
+
+        // Flag to indicate if the track has been found
+        boolean isTrackFound = false;
+
+        for (Map.Entry<UserLite, List<TrackLite>> entry : DataRepository.getUsersAndTracks().entrySet()) {
+            // Look for the track in the current user's list of tracks
+            Optional<TrackLite> track = entry.getValue().stream()
+                    .filter(t -> t.getId().equals(trackId))
+                    .findFirst();
+
+            // If the track is found, send a message to the owner
+            if (track.isPresent()) {
+                UserLite owner = entry.getKey();
+                sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), owner);
+                isTrackFound = true;
+                break; // Stop searching as we've found the track
+            }
+        }
+
+        if (!isTrackFound) {
+            // Track not found in any user's list
+            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), sender.getUser());
+        }
     }
 }

@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public class DataRepository {
-    private final Map<UserLite, List<TrackLite>> usersAndTracks = new HashMap<>();
+    private static final Map<UserLite, List<TrackLite>> usersAndTracks = new HashMap<>();
 
-    public Map<UserLite, List<TrackLite>> getUsersAndTracks() {
+    public static Map<UserLite, List<TrackLite>> getUsersAndTracks() {
         return usersAndTracks;
     }
 }

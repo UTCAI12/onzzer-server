@@ -37,6 +37,9 @@ public class ServerCommunicationController {
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
         });
+        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
+            serverRequestHandler.handleGetTrack(message, sender);
+        });
     }
 
     /**
