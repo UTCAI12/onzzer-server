@@ -17,4 +17,8 @@ public class ServerController {
     public DataTrackServices getDataTrackServices() {
         return dataTrackServices;
     }
+
+    public DataRepository getDataRepository() {
+        return dataRepository;
+    }
 }
