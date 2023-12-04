@@ -23,16 +23,25 @@ public class ServerCommunicationController {
 
     public ServerCommunicationController(final int serverPort) {
         this.serverPort = serverPort;
-        this.users = new HashMap<>();
+        this.users = new HashMap<UserLite, ServerSocketManager>();
         this.serverRequestHandler = new ServerRequestHandler(users);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
+
         messageHandlers.put(SocketMessagesTypes.USER_CONNECT, (message, sender) -> {
-            serverRequestHandler.userConnect(message, (UserLite) message.object, sender);
+            UserLite connectedUser = (UserLite) message.object;
+            serverRequestHandler.userConnect(message, connectedUser, sender);
+
+            // Add the connected user to the users map
+            users.put(connectedUser, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
-            serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
+            UserLite disconnectedUser = (UserLite) message.object;
+            serverRequestHandler.userDisconnect(message, disconnectedUser, sender);
+
+            // Remove the disconnected user from the users map
+            users.remove(disconnectedUser);
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
@@ -67,6 +76,14 @@ public class ServerCommunicationController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+        // Call the broadcastServerDisconnect method when the server is about to shut down
+        broadcastServerDisconnect();
         }
+    }
+
+    public void broadcastServerDisconnect() {
+        SocketMessage disconnectMessage = new SocketMessage(SocketMessagesTypes.SERVER_STOPPED, null);
+        serverRequestHandler.sendAllExclude(disconnectMessage,null);
     }
 }

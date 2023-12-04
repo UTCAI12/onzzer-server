@@ -142,3 +142,4 @@ buildNumber.properties
 .classpath
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,macos
+/src/main/java/fr/utc/onzzer/common/dataclass/
