@@ -6,6 +6,7 @@ import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataUserServices;
+import fr.utc.onzzer.server.communication.ServerSocketManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,9 @@ public class DataUserServicesImpl implements DataUserServices {
     }
 
     @Override
-    public void addUser(UserLite user, ServiceSocketManager ssm) {
+    public void addUser(UserLite user, ServerSocketManager ssm) {
         dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
-        dataRepository.getUsersAndSocket().put(user, ssm);
+        dataRepository.getUsersAndSockets().put(user, ssm);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class DataUserServicesImpl implements DataUserServices {
             throw new UserLiteNotFoundException();
         }
         dataRepository.getUsersAndTracks().remove(user);
-        dataRepository.getUsersAndSocket().remove(user);
+        dataRepository.getUsersAndSockets().remove(user);
     }
 
     @Override
@@ -52,9 +53,9 @@ public class DataUserServicesImpl implements DataUserServices {
         dataRepository.getUsersAndTracks().put(newUser, trackLites);
         dataRepository.getUsersAndTracks().remove(previousUser);
 
-        ServerSocketManager socket = dataRepository.getUsersAndSocket().get(previousUser);
-        dataRepository.getUsersAndSocket().put(newUser, socket);
-        dataRepository.getUsersAndSocket().remove(previousUser);
+        ServerSocketManager socket = dataRepository.getUsersAndSockets().get(previousUser);
+        dataRepository.getUsersAndSockets().put(newUser, socket);
+        dataRepository.getUsersAndSockets().remove(previousUser);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class DataUserServicesImpl implements DataUserServices {
     }
 
     public ServerSocketManager getSocket(UserLite user) {
-        return dataRepository.getUsersAndSocket().get(user);
-    }
+        return dataRepository.getUsersAndSockets().get(user);
     }
 }
+
