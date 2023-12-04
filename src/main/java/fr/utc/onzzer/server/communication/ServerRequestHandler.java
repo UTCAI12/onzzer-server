@@ -1,20 +1,28 @@
 package fr.utc.onzzer.server.communication;
 
-import fr.utc.onzzer.server.data.DataRepository;
+import fr.utc.onzzer.server.data.ServerController;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
+import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
+import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
+
 public class ServerRequestHandler {
 
     private final Map<UserLite, ServerSocketManager> users;
-    public ServerRequestHandler(final Map<UserLite, ServerSocketManager> users) {
+
+    private ServerController serverController;
+
+    public ServerRequestHandler(final Map<UserLite, ServerSocketManager> users, ServerController serverController) {
         this.users = users;
+        this.serverController = serverController;
     }
 
     public void sendAllExclude(final SocketMessage message, final UUID excluded) {
@@ -92,7 +100,7 @@ public class ServerRequestHandler {
         this.sendAllExclude(message, sender.getUser().getId());
     }
 
-    public void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
+    void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
 
         class TrackRequest implements Serializable {
             private final UUID trackId;
@@ -112,14 +120,16 @@ public class ServerRequestHandler {
             }
         }
 
-        UUID trackId = (UUID) message.object;
-
-        // Use getOwner to find the owner of the track
-        UserLite owner = getOwner(trackId);
-
-        // If the owner is found, create a TrackRequest and send it
-        TrackRequest trackRequest = new TrackRequest(trackId, sender.getUser().getId());
-        sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
+        try {
+            UUID trackId = (UUID) message.object;
+            UserLite owner = serverController.getDataTrackServices().getOwner(trackId);
+            TrackRequest trackRequest = new TrackRequest(trackId, sender.getUser().getId());
+            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
+        } catch (UserLiteNotFoundException e) {
+            System.out.println("User not found: " + e.getMessage());
+        } catch (TrackLiteNotFoundException e) {
+            System.out.println("Track not found: " + e.getMessage());
+        }
 
     }
 }

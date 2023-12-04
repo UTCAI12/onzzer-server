@@ -5,6 +5,7 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.data.ServerController;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,12 +20,15 @@ public class ServerCommunicationController {
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
 
     private final ServerRequestHandler serverRequestHandler;
+
+    private final ServerController serverController;
     private final Map<UserLite, ServerSocketManager> users;
 
-    public ServerCommunicationController(final int serverPort) {
+    public ServerCommunicationController(final int serverPort, ServerController serverController) {
         this.serverPort = serverPort;
         this.users = new HashMap<>();
-        this.serverRequestHandler = new ServerRequestHandler(users);
+        this.serverController = serverController;
+        this.serverRequestHandler = new ServerRequestHandler(users, serverController);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
