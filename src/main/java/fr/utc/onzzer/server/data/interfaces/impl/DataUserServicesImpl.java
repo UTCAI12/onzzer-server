@@ -6,6 +6,7 @@ import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataUserServices;
+import fr.utc.onzzer.server.communication.ServerSocketManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,9 @@ public class DataUserServicesImpl implements DataUserServices {
     }
 
     @Override
-    public void addUser(UserLite user) {
+    public void addUser(UserLite user, ServerSocketManager ssm) {
         dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
+        dataRepository.getUsersAndSockets().put(user, ssm);
     }
 
     @Override
@@ -37,6 +39,7 @@ public class DataUserServicesImpl implements DataUserServices {
             throw new UserLiteNotFoundException();
         }
         dataRepository.getUsersAndTracks().remove(user);
+        dataRepository.getUsersAndSockets().remove(user);
     }
 
     @Override
@@ -49,10 +52,19 @@ public class DataUserServicesImpl implements DataUserServices {
         List<TrackLite> trackLites = dataRepository.getUsersAndTracks().get(previousUser);
         dataRepository.getUsersAndTracks().put(newUser, trackLites);
         dataRepository.getUsersAndTracks().remove(previousUser);
+
+        ServerSocketManager socket = dataRepository.getUsersAndSockets().get(previousUser);
+        dataRepository.getUsersAndSockets().put(newUser, socket);
+        dataRepository.getUsersAndSockets().remove(previousUser);
     }
 
     @Override
     public List<UserLite> getAllUsers() {
         return dataRepository.getUsersAndTracks().keySet().stream().toList();
     }
+
+    public ServerSocketManager getSocket(UserLite user) {
+        return dataRepository.getUsersAndSockets().get(user);
+    }
 }
+

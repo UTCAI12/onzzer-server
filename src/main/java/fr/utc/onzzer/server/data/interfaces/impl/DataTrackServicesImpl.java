@@ -4,12 +4,10 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
+import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class DataTrackServicesImpl implements DataTrackServices {
     private final DataRepository dataRepository;
@@ -44,6 +42,18 @@ public class DataTrackServicesImpl implements DataTrackServices {
                 .filter(trackLite -> trackLite.getId() == trackId)
                 .findFirst()
                 .orElseThrow(TrackLiteNotFoundException::new);
+    }
+
+    @Override
+    public UserLite getOwner(UUID trackId) throws UserLiteNotFoundException, TrackLiteNotFoundException {
+
+        TrackLite track = getTrack(trackId);
+
+        return dataRepository.getUsersAndTracks().entrySet().stream()
+                .filter(entry -> entry.getValue().contains(track))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow(UserLiteNotFoundException::new);
     }
 
     @Override
