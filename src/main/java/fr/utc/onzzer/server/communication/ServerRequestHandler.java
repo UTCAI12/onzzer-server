@@ -7,6 +7,7 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 public class ServerRequestHandler {
@@ -92,29 +93,33 @@ public class ServerRequestHandler {
     }
 
     public void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
-        UUID trackId = (UUID) message.object;
 
-        // Flag to indicate if the track has been found
-        boolean isTrackFound = false;
+        class TrackRequest implements Serializable {
+            private final UUID trackId;
+            private final UUID userId;
 
-        for (Map.Entry<UserLite, List<TrackLite>> entry : DataRepository.getUsersAndTracks().entrySet()) {
-            // Look for the track in the current user's list of tracks
-            Optional<TrackLite> track = entry.getValue().stream()
-                    .filter(t -> t.getId().equals(trackId))
-                    .findFirst();
+            public TrackRequest(UUID trackId, UUID userId) {
+                this.trackId = trackId;
+                this.userId = userId;
+            }
 
-            // If the track is found, send a message to the owner
-            if (track.isPresent()) {
-                UserLite owner = entry.getKey();
-                sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), owner);
-                isTrackFound = true;
-                break; // Stop searching as we've found the track
+            public UUID getTrackId() {
+                return trackId;
+            }
+
+            public UUID getUserId() {
+                return userId;
             }
         }
 
-        if (!isTrackFound) {
-            // Track not found in any user's list
-            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), sender.getUser());
-        }
+        UUID trackId = (UUID) message.object;
+
+        // Use getOwner to find the owner of the track
+        UserLite owner = getOwner(trackId);
+
+        // If the owner is found, create a TrackRequest and send it
+        TrackRequest trackRequest = new TrackRequest(trackId, sender.getUser().getId());
+        sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
+
     }
 }
