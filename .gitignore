@@ -140,6 +140,3 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
-# End of https://www.toptal.com/developers/gitignore/api/intellij+all,maven,macos
-/src/main/java/fr/utc/onzzer/common/dataclass/
