@@ -4,6 +4,7 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,12 +37,8 @@ public class ServerSocketManager extends Thread {
         this.user = user;
     }
 
-    public void send(final SocketMessage message) {
-        try {
-            this.out.writeObject(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void send(final SocketMessage message) throws IOException {
+        this.out.writeObject(message);
     }
 
     @Override
@@ -63,6 +60,8 @@ public class ServerSocketManager extends Thread {
                     return;
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
+                } catch (EOFException e) {
+                    return;
                 }
             }
         } catch (IOException e) {
