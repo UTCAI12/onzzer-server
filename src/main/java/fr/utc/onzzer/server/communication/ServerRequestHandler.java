@@ -16,24 +16,21 @@ import java.util.*;
 
 public class ServerRequestHandler {
 
-    private final Map<UserLite, ServerSocketManager> users;
-
     private ServerController serverController;
 
-    public ServerRequestHandler(final Map<UserLite, ServerSocketManager> users, ServerController serverController) {
-        this.users = users;
+    public ServerRequestHandler(ServerController serverController) {
         this.serverController = serverController;
     }
 
     public void sendAllExclude(final SocketMessage message, final UUID excluded) {
         System.out.println("Server: send message to all registered users excluded : " + excluded);
-        this.users.forEach((user, serverSocketManager) -> {
+        this.serverController.getDataRepository().getUsersAndSockets().forEach((user, serverSocketManager) -> {
             if (excluded != user.getId()) {
                 try {
                     serverSocketManager.send(message);
                 } catch (IOException e) {
                     System.out.println("Server: Not able to reach user, removing it from list");
-                    this.users.remove(user);
+                    this.serverController.getDataRepository().getUsersAndSockets().remove(user);
                 }
                 System.out.println("Server: sending to:" + user.getId());
             }
@@ -41,14 +38,14 @@ public class ServerRequestHandler {
     }
 
     public void sendMessageToUser(final SocketMessage message, final UserLite user) {
-        ServerSocketManager userSocketManager = users.get(user);
+        ServerSocketManager userSocketManager = this.serverController.getDataRepository().getUsersAndSockets().get(user);
         if (userSocketManager != null) {
             try {
                 userSocketManager.send(message);
                 System.out.println("Server: GET_TRACK message sent to user: " + user.getUsername());
             } catch (IOException e) {
                 System.out.println("Server: Not able to reach user " + user.getUsername());
-                users.remove(user); // Remove the user if we can't reach them
+                this.serverController.getDataRepository().getUsersAndSockets().remove(user); // Remove the user if we can't reach them
             }
         } else {
             System.out.println("Server: User with ID " + user.getUsername() + " not found.");
@@ -58,22 +55,22 @@ public class ServerRequestHandler {
 
     void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
         // update the local model with the new user
-        this.users.put(userLite, sender);
+        this.serverController.getDataRepository().getUsersAndSockets().put(userLite, sender);
 
         // associate the ClientHandler with the appropriate User
         sender.setUser(userLite);
 
-        System.out.println("Server: new client : "+ userLite.getId() + " ! there is now " + this.users.size() + " registered clients");
+        System.out.println("Server: new client : "+ userLite.getId() + " ! there is now " + this.serverController.getDataRepository().getUsersAndSockets().size() + " registered clients");
 
         // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
         this.sendAllExclude(message, userLite.getId());
 
         // TODO : remove multiple message sending, send only one global message : SocketMessagesTypes.USER_CONNECTED
-        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(users.keySet()));
+        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataRepository().getUsersAndSockets().keySet()));
         try {
             sender.send(m);
         } catch (IOException e) {
-            this.users.remove(userLite);
+            this.serverController.getDataRepository().getUsersAndSockets().remove(userLite);
         }
 
         /*
@@ -89,7 +86,7 @@ public class ServerRequestHandler {
 
     void userDisconnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
         // removing the user from the local "model"
-        this.users.remove(userLite);
+        this.serverController.getDataRepository().getUsersAndSockets().remove(userLite);
         // notifying others users by forwarding the initial message
         this.sendAllExclude(message, userLite.getId());
     }
