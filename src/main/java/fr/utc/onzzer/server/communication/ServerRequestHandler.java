@@ -1,6 +1,7 @@
 package fr.utc.onzzer.server.communication;
 
 
+import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
@@ -65,5 +66,10 @@ public class ServerRequestHandler {
     void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) {
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
         this.sendAllExclude(message, sender.getUser().getId());
+    }
+
+    void downloadTrack(final SocketMessage message, final Track trackId, final ServerSocketManager sender) {
+        //send mesage to the user asking for the track
+        //this.sendAllExclude(message, sender.getUser().getId());
     }
 }
