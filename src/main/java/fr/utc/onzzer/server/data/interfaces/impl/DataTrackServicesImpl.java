@@ -1,8 +1,10 @@
 package fr.utc.onzzer.server.data.interfaces.impl;
 
 import fr.utc.onzzer.common.dataclass.TrackLite;
+import fr.utc.onzzer.common.dataclass.User;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.data.DataRepository;
+import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
@@ -17,6 +19,18 @@ public class DataTrackServicesImpl implements DataTrackServices {
     }
 
     @Override
+    public void addTrack(TrackLite track, UserLite user) {
+
+        if (!dataRepository.getUsersAndTracks().containsKey(user)) {
+            dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
+        }
+        else if (dataRepository.getUsersAndTracks().get(user).contains(track)) {
+            return;
+        }
+        dataRepository.getUsersAndTracks().get(user).add(track);
+    }
+    
+    @Override
     public void updateTrack(TrackLite newTrack) throws TrackLiteNotFoundException {
         Collection<List<TrackLite>> values = dataRepository.getUsersAndTracks().values();
         for (List<TrackLite> userTrackLites : values) {
@@ -29,6 +43,17 @@ public class DataTrackServicesImpl implements DataTrackServices {
             }
         }
         throw new TrackLiteNotFoundException();
+    }
+
+    @Override
+    public void removeTrack(TrackLite track, UserLite user) throws Exception {
+        if (!dataRepository.getUsersAndTracks().containsKey(user)) {
+            throw new UserLiteNotFoundException();
+        }
+        if (!dataRepository.getUsersAndTracks().get(user).contains(track)) {
+            throw new TrackLiteNotFoundException();
+        }
+        dataRepository.getUsersAndTracks().get(user).remove(track);
     }
 
     @Override
@@ -62,5 +87,45 @@ public class DataTrackServicesImpl implements DataTrackServices {
             throw new TrackLiteNotFoundException();
         }
         dataRepository.getUsersAndTracks().put(userLite, new ArrayList<>());
+    }
+
+    @Override
+    public List<TrackLite> getAllTracks() {
+        return dataRepository.getUsersAndTracks().values().stream()
+                .toList()
+                .stream()
+                .flatMap(List::stream)
+                .toList();
+    }
+
+    // Link between DownloadedTrack and UserLite(s)
+
+    @Override
+    public void addRequestedTrackForUser(UUID trackId, UserLite user) {
+        if (!dataRepository.getRequestedTracksForUsers().containsKey(trackId)) {
+            dataRepository.getRequestedTracksForUsers().put(trackId, new ArrayList<>());
+        }
+        dataRepository.getRequestedTracksForUsers().get(trackId).add(user);
+    }
+
+    @Override
+    public void removeRequestedTrackForUser(UUID trackId, UserLite user) throws RequestedTrackNotFound{
+        if (!dataRepository.getRequestedTracksForUsers().containsKey(trackId)) {
+            throw new RequestedTrackNotFound();
+        }
+        dataRepository.getRequestedTracksForUsers().get(trackId).remove(user);
+
+        // Remove trackId from map if no more users are waiting for it
+        if (dataRepository.getRequestedTracksForUsers().get(trackId).isEmpty()) {
+            dataRepository.getRequestedTracksForUsers().remove(trackId);
+        }
+    }
+
+    @Override
+    public List<UserLite> getUsersForRequestedTrack(UUID trackId) throws RequestedTrackNotFound {
+        if (!dataRepository.getRequestedTracksForUsers().containsKey(trackId)) {
+            throw new RequestedTrackNotFound();
+        }
+        return dataRepository.getRequestedTracksForUsers().get(trackId);
     }
 }
