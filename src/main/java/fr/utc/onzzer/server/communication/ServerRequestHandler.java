@@ -1,5 +1,7 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.Track;
+import fr.utc.onzzer.common.dataclass.User;
 import fr.utc.onzzer.server.data.ServerController;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
@@ -101,29 +103,10 @@ public class ServerRequestHandler {
     }
 
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
-
-        class TrackRequest implements Serializable {
-            private final UUID trackId;
-            private final UUID userId;
-
-            public TrackRequest(UUID trackId, UUID userId) {
-                this.trackId = trackId;
-                this.userId = userId;
-            }
-
-            public UUID getTrackId() {
-                return trackId;
-            }
-
-            public UUID getUserId() {
-                return userId;
-            }
-        }
-
         try {
             UUID trackId = (UUID) message.object;
             UserLite owner = serverController.getDataTrackServices().getOwner(trackId);
-            TrackRequest trackRequest = new TrackRequest(trackId, sender.getUser().getId());
+            AbstractMap.SimpleEntry<UserLite, UUID> trackRequest = new AbstractMap.SimpleEntry<>(sender.getUser(), trackId);
             sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
         } catch (UserLiteNotFoundException e) {
             System.out.println("User not found: " + e.getMessage());
@@ -131,5 +114,10 @@ public class ServerRequestHandler {
             System.out.println("Track not found: " + e.getMessage());
         }
 
+    }
+
+    void downloadTrack(final SocketMessage message, final ServerSocketManager sender) {
+        AbstractMap.SimpleEntry<UserLite, Track> trackRequest = (AbstractMap.SimpleEntry<UserLite, Track>) message.object;
+        sendMessageToUser(new SocketMessage(SocketMessagesTypes.DOWNLOAD_TRACK, trackRequest.getValue()), trackRequest.getKey());
     }
 }

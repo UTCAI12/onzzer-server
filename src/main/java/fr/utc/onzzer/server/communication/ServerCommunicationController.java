@@ -1,6 +1,7 @@
 package fr.utc.onzzer.server.communication;
 
 
+import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
@@ -43,6 +44,9 @@ public class ServerCommunicationController {
         });
         messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
             serverRequestHandler.handleGetTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
+            serverRequestHandler.downloadTrack(message, sender);
         });
     }
 
