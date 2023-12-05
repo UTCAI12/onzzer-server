@@ -20,15 +20,16 @@ public class ServerCommunicationController {
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
 
     private final ServerRequestHandler serverRequestHandler;
-
-    private final ServerController serverController;
     private final Map<UserLite, ServerSocketManager> users;
 
-    public ServerCommunicationController(final int serverPort, ServerController serverController) {
+    private final ServerController controller;
+
+    public ServerCommunicationController(final int serverPort, ServerController controller) {
         this.serverPort = serverPort;
-        this.users = new HashMap<>();
-        this.serverController = serverController;
-        this.serverRequestHandler = new ServerRequestHandler(users, serverController);
+        this.controller = controller;
+        this.users = controller.getDataRepository().getUsersAndSocket();
+        this.serverRequestHandler = new ServerRequestHandler(users);
+
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
@@ -40,9 +41,6 @@ public class ServerCommunicationController {
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
-        });
-        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
-            serverRequestHandler.handleGetTrack(message, sender);
         });
     }
 
