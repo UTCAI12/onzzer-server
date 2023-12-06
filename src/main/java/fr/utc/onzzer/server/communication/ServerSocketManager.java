@@ -4,18 +4,22 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ServerSocketManager extends Thread {
 
     private final Socket socket;
     private ObjectOutputStream  out;
+    private ObjectInputStream in;
 
     private UserLite user;
     private final ServerCommunicationController serverController;
+    private static final long PING_INTERVAL = 1000; // 1 seconds
+    private static final int TIMEOUT = 2000; // 2 seconds
 
     public ServerSocketManager(final Socket socket, final ServerCommunicationController serverController) {
         this.serverController = serverController;
@@ -23,9 +27,12 @@ public class ServerSocketManager extends Thread {
 
         try {
             this.out = new ObjectOutputStream (socket.getOutputStream());
+            this.in = new ObjectInputStream (socket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
+        /* Create a thread for pinging continuously the client */
+        new Thread(() -> pingClient(socket)).start();
     }
 
     public UserLite getUser() {
@@ -70,6 +77,38 @@ public class ServerSocketManager extends Thread {
         }
     }
 
+    private void pingClient(Socket clientSocket) {
+        try {
+            // Send ping messages at regular intervals
+            Timer timerPong = new Timer();
+            timerPong.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    send(SocketMessagesTypes.SERVER_PING);
+                }
+            }, 0, PING_INTERVAL);
+
+            clientSocket.setSoTimeout(TIMEOUT);
+
+            // Listen for responses from the client
+            while (!clientSocket.isClosed()) {
+                try {
+                    Object message = in.readObject();
+                    if (message == null) {
+                        System.out.println("Client disconnected: " + clientSocket.getInetAddress().getHostAddress());
+                        clientSocket.close();
+                    }
+                } catch (SocketTimeoutException e) {
+                    System.out.println("Client TIMEOUT: " + clientSocket.getInetAddress().getHostAddress());
+                    clientSocket.close();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void start() {
