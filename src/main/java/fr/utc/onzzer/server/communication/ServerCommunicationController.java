@@ -7,6 +7,7 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 
 import java.io.IOException;
 import java.net.ServerSocket;

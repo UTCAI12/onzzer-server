@@ -7,6 +7,7 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
@@ -106,8 +107,8 @@ public class ServerRequestHandler {
         try {
             UUID trackId = (UUID) message.object;
             UserLite owner = serverController.getDataTrackServices().getOwner(trackId);
-            AbstractMap.SimpleEntry<UserLite, UUID> trackRequest = new AbstractMap.SimpleEntry<>(sender.getUser(), trackId);
-            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
+            serverController.getDataTrackServices().addRequestedTrackForUser(trackId, sender.getUser());
+            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), owner);
         } catch (UserLiteNotFoundException e) {
             System.out.println("User not found: " + e.getMessage());
         } catch (TrackLiteNotFoundException e) {
@@ -117,7 +118,15 @@ public class ServerRequestHandler {
     }
 
     void downloadTrack(final SocketMessage message, final ServerSocketManager sender) {
-        AbstractMap.SimpleEntry<UserLite, Track> trackRequest = (AbstractMap.SimpleEntry<UserLite, Track>) message.object;
-        sendMessageToUser(new SocketMessage(SocketMessagesTypes.DOWNLOAD_TRACK, trackRequest.getValue()), trackRequest.getKey());
+        Track track = (Track) message.object;
+        try {
+            List<UserLite> userList = serverController.getDataTrackServices().getUsersForRequestedTrack(track.getId());
+            for(UserLite user : userList) {
+                sendMessageToUser(new SocketMessage(SocketMessagesTypes.DOWNLOAD_TRACK, track), user);
+                serverController.getDataTrackServices().removeRequestedTrackForUser(track.getId(), user);
+            }
+        } catch (RequestedTrackNotFound e) {
+            System.out.println("Track not found: " + e.getMessage());
+        }
     }
 }
