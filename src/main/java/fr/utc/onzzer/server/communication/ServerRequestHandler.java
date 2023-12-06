@@ -1,11 +1,13 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.User;
 import fr.utc.onzzer.server.data.ServerController;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
@@ -117,35 +119,29 @@ public class ServerRequestHandler {
     }
 
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
-
-        class TrackRequest implements Serializable {
-            private final UUID trackId;
-            private final UUID userId;
-
-            public TrackRequest(UUID trackId, UUID userId) {
-                this.trackId = trackId;
-                this.userId = userId;
-            }
-
-            public UUID getTrackId() {
-                return trackId;
-            }
-
-            public UUID getUserId() {
-                return userId;
-            }
-        }
-
         try {
             UUID trackId = (UUID) message.object;
             UserLite owner = serverController.getDataTrackServices().getOwner(trackId);
-            TrackRequest trackRequest = new TrackRequest(trackId, sender.getUser().getId());
-            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackRequest), owner);
+            serverController.getDataTrackServices().addRequestedTrackForUser(trackId, sender.getUser());
+            sendMessageToUser(new SocketMessage(SocketMessagesTypes.GET_TRACK, trackId), owner);
         } catch (UserLiteNotFoundException e) {
             System.out.println("User not found: " + e.getMessage());
         } catch (TrackLiteNotFoundException e) {
             System.out.println("Track not found: " + e.getMessage());
         }
 
+    }
+
+    void downloadTrack(final SocketMessage message, final ServerSocketManager sender) {
+        Track track = (Track) message.object;
+        try {
+            List<UserLite> userList = serverController.getDataTrackServices().getUsersForRequestedTrack(track.getId());
+            for(UserLite user : userList) {
+                sendMessageToUser(new SocketMessage(SocketMessagesTypes.DOWNLOAD_TRACK, track), user);
+                serverController.getDataTrackServices().removeRequestedTrackForUser(track.getId(), user);
+            }
+        } catch (RequestedTrackNotFound e) {
+            System.out.println("Track not found: " + e.getMessage());
+        }
     }
 }
