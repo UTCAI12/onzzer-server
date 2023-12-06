@@ -14,6 +14,7 @@ import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.Socket;
 import java.util.*;
 
 
@@ -23,6 +24,8 @@ public class ServerRequestHandler {
 
     public ServerRequestHandler(ServerController serverController) {
         this.serverController = serverController;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.sendAllExclude(new SocketMessage(SocketMessagesTypes.SERVER_STOPPED, null), null)));
     }
 
     public void sendAllExclude(final SocketMessage message, final UUID excluded) {
