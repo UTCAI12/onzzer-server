@@ -24,13 +24,11 @@ public class ServerCommunicationController {
     private final ServerRequestHandler serverRequestHandler;
 
     private final ServerController serverController;
-    private final Map<UserLite, ServerSocketManager> users;
 
     public ServerCommunicationController(final int serverPort, ServerController serverController) {
         this.serverPort = serverPort;
-        this.users = new HashMap<>();
         this.serverController = serverController;
-        this.serverRequestHandler = new ServerRequestHandler(users, serverController);
+        this.serverRequestHandler = new ServerRequestHandler(serverController);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
