@@ -1,10 +1,13 @@
 package fr.utc.onzzer.server.communication;
 
 
+import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,12 +22,13 @@ public class ServerCommunicationController {
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
 
     private final ServerRequestHandler serverRequestHandler;
-    private final Map<UserLite, ServerSocketManager> users;
 
-    public ServerCommunicationController(final int serverPort) {
+    private final ServerController serverController;
+
+    public ServerCommunicationController(final int serverPort, ServerController serverController) {
         this.serverPort = serverPort;
-        this.users = new HashMap<>();
-        this.serverRequestHandler = new ServerRequestHandler(users);
+        this.serverController = serverController;
+        this.serverRequestHandler = new ServerRequestHandler(serverController);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
@@ -39,6 +43,12 @@ public class ServerCommunicationController {
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping
+        });
+        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
+            serverRequestHandler.handleGetTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
+            serverRequestHandler.downloadTrack(message, sender);
         });
     }
 

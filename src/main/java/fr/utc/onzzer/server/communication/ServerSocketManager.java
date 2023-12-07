@@ -60,6 +60,7 @@ public class ServerSocketManager extends Thread {
         this.user = user;
     }
 
+
     public void send(final SocketMessage message) {
         try {
             this.outputStream.writeObject(message);
