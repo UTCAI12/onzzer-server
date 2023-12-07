@@ -38,7 +38,7 @@ public class ServerCommunicationController {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
-            System.out.println("Pong");
+            // No action required after user ping
         });
     }
 

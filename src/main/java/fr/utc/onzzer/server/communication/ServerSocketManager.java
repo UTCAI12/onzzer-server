@@ -6,6 +6,7 @@ import fr.utc.onzzer.common.dataclass.UserLite;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,26 +14,42 @@ import java.util.TimerTask;
 public class ServerSocketManager extends Thread {
 
     private final Socket socket;
-    private ObjectOutputStream  out;
-    private ObjectInputStream in;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
 
     private UserLite user;
     private final ServerCommunicationController serverController;
-    private static final long PING_INTERVAL = 1000; // 1 seconds
-    private static final int TIMEOUT = 2000; // 2 seconds
+    private static final long PING_INTERVAL = 5000; // 5 second
+    private static final int TIMEOUT = 10000; // 10 seconds
+    private Timer timerPong;
 
     public ServerSocketManager(final Socket socket, final ServerCommunicationController serverController) {
         this.serverController = serverController;
         this.socket = socket;
 
         try {
-            this.out = new ObjectOutputStream (socket.getOutputStream());
-            this.in = new ObjectInputStream (socket.getInputStream());
+            this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.inputStream = new ObjectInputStream(socket.getInputStream());
+            this.timerPong = new Timer();
+            // Timeout if no data arrives within TIMEOUT value
+            socket.setSoTimeout(TIMEOUT);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /* Create a thread for pinging continuously the client */
-        new Thread(() -> pingClient(socket)).start();
+
+        // Create a timer for pinging continuously the client
+        this.timerPong.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                // Check if the socket is open before sending a ping
+                if (!socket.isClosed() && socket.isConnected()) {
+                    send(new SocketMessage(SocketMessagesTypes.SERVER_PING, null));
+                } else {
+                    this.cancel();
+                }
+            }
+        }, 5000, PING_INTERVAL);
+
     }
 
     public UserLite getUser() {
@@ -45,7 +62,7 @@ public class ServerSocketManager extends Thread {
 
     public void send(final SocketMessage message) {
         try {
-            this.out.writeObject(message);
+            this.outputStream.writeObject(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,68 +70,42 @@ public class ServerSocketManager extends Thread {
 
     @Override
     public void run() {
-        try (
-                final ObjectInputStream in = new ObjectInputStream(this.socket.getInputStream())
-        ) {
-            while (true) {
-                try {
-                    SocketMessage receivedMessage = (SocketMessage) in.readObject();
-                    System.out.println("Server: received "+ receivedMessage);
-
-                    this.serverController.onMessage(receivedMessage, this);
-
-                } catch (java.net.SocketException e) {
-                    // If user disconnect without sending a DISCONNECT message, create one
-                    final SocketMessage socketMessage = new SocketMessage(SocketMessagesTypes.USER_DISCONNECT, this.user);
-                    this.serverController.onMessage(socketMessage, this);
-                    return;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+        while (!socket.isClosed()) {
+            try {
+                SocketMessage receivedMessage = (SocketMessage) inputStream.readObject();
+                System.out.println("Server: received " + receivedMessage);
+                this.serverController.onMessage(receivedMessage, this);
+            } catch (SocketTimeoutException e) {
+                System.out.println("Client timeout: " + socket.getInetAddress().getHostAddress());
+                break;  // Exit the loop on timeout
+            }catch (SocketException | EOFException e) {
+                // Exception throw when waiting of an object then the client disconnect
+                System.out.println("Client disconnected: " + socket.getInetAddress().getHostAddress());
+                break;  // Exit the loop on disconnection
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                break;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        this.disconnect();
     }
 
-    private void pingClient(Socket clientSocket) {
+    public void disconnect(){
+        this.timerPong.cancel();
+        final SocketMessage socketMessage = new SocketMessage(SocketMessagesTypes.USER_DISCONNECT, this.user);
+        this.serverController.onMessage(socketMessage, this);
         try {
-            // Send ping messages at regular intervals
-            Timer timerPong = new Timer();
-            timerPong.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    send(SocketMessagesTypes.SERVER_PING);
-                }
-            }, 0, PING_INTERVAL);
-
-            clientSocket.setSoTimeout(TIMEOUT);
-
-            // Listen for responses from the client
-            while (!clientSocket.isClosed()) {
-                try {
-                    Object message = in.readObject();
-                    if (message == null) {
-                        System.out.println("Client disconnected: " + clientSocket.getInetAddress().getHostAddress());
-                        clientSocket.close();
-                    }
-                } catch (SocketTimeoutException e) {
-                    System.out.println("Client TIMEOUT: " + clientSocket.getInetAddress().getHostAddress());
-                    clientSocket.close();
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            System.out.println("Server: Socket closed");
+            this.socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public void start() {
         System.out.println("Server: New socket");
         super.start();
     }
-
-
 }
