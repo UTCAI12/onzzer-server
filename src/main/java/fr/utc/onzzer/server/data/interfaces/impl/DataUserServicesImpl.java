@@ -1,8 +1,10 @@
 package fr.utc.onzzer.server.data.interfaces.impl;
 
+import fr.utc.onzzer.common.dataclass.ModelUpdateTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.User;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.common.services.Listenable;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.interfaces.DataUserServices;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class DataUserServicesImpl implements DataUserServices {
+public class DataUserServicesImpl extends Listenable implements DataUserServices {
     private final DataRepository dataRepository;
 
     public DataUserServicesImpl(DataRepository dataRepository) {
@@ -31,6 +33,8 @@ public class DataUserServicesImpl implements DataUserServices {
     public void addUser(UserLite user, ServerSocketManager ssm) {
         dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
         dataRepository.getUsersAndSockets().put(user, ssm);
+        this.notify(user, UserLite.class, ModelUpdateTypes.NEW_USER);
+
     }
 
     @Override
@@ -40,6 +44,7 @@ public class DataUserServicesImpl implements DataUserServices {
         }
         dataRepository.getUsersAndTracks().remove(user);
         dataRepository.getUsersAndSockets().remove(user);
+        this.notify(user, UserLite.class, ModelUpdateTypes.DELETE_USER);
     }
 
     @Override
@@ -56,6 +61,8 @@ public class DataUserServicesImpl implements DataUserServices {
         ServerSocketManager socket = dataRepository.getUsersAndSockets().get(previousUser);
         dataRepository.getUsersAndSockets().put(newUser, socket);
         dataRepository.getUsersAndSockets().remove(previousUser);
+        this.notify(newUser, UserLite.class, ModelUpdateTypes.UPDATE_USER);
+
     }
 
     @Override
