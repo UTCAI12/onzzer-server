@@ -1,8 +1,7 @@
 package fr.utc.onzzer.server.data.interfaces.impl;
 
-import fr.utc.onzzer.common.dataclass.TrackLite;
-import fr.utc.onzzer.common.dataclass.User;
-import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.common.dataclass.*;
+import fr.utc.onzzer.common.services.Listenable;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
@@ -11,7 +10,7 @@ import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
 
 import java.util.*;
 
-public class DataTrackServicesImpl implements DataTrackServices {
+public class DataTrackServicesImpl extends Listenable implements DataTrackServices {
     private final DataRepository dataRepository;
 
     public DataTrackServicesImpl(DataRepository dataRepository) {
@@ -25,6 +24,7 @@ public class DataTrackServicesImpl implements DataTrackServices {
             dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
         }
         else if (dataRepository.getUsersAndTracks().get(user).contains(track)) {
+            this.notify(track, TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
             return;
         }
         dataRepository.getUsersAndTracks().get(user).add(track);
@@ -38,6 +38,7 @@ public class DataTrackServicesImpl implements DataTrackServices {
                 if (trackLite.getId() == newTrack.getId()) {
                     userTrackLites.add(newTrack);
                     userTrackLites.remove(trackLite);
+                    this.notify(newTrack, TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
                     return;
                 }
             }
@@ -54,6 +55,8 @@ public class DataTrackServicesImpl implements DataTrackServices {
             throw new TrackLiteNotFoundException();
         }
         dataRepository.getUsersAndTracks().get(user).remove(track);
+        this.notify(track, TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
+
     }
 
     @Override
