@@ -42,6 +42,9 @@ public class ServerCommunicationController extends Notifier {
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
         });
+        messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
+            // No action required after user ping
+        });
         messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
             serverRequestHandler.handleGetTrack(message, sender);
         });
