@@ -41,11 +41,15 @@ public class ServerSocketManager extends Thread {
         this.timerPong.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // Check if the socket is open before sending a ping
-                if (!socket.isClosed() && socket.isConnected()) {
-                    send(new SocketMessage(SocketMessagesTypes.SERVER_PING, null));
-                } else {
-                    this.cancel();
+                try {
+                    // Check if the socket is open before sending a ping
+                    if (!socket.isClosed() && socket.isConnected()) {
+                        send(new SocketMessage(SocketMessagesTypes.SERVER_PING, null));
+                    } else {
+                        this.cancel();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }, 5000, PING_INTERVAL);
@@ -61,12 +65,8 @@ public class ServerSocketManager extends Thread {
     }
 
 
-    public void send(final SocketMessage message) {
-        try {
-            this.outputStream.writeObject(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void send(final SocketMessage message) throws IOException {
+        this.outputStream.writeObject(message);
     }
 
     @Override
