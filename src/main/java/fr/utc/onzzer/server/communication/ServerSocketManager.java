@@ -1,8 +1,10 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
+import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -38,6 +40,8 @@ public class ServerSocketManager extends Thread {
     }
 
     public void send(final SocketMessage message) throws IOException {
+        final SenderSocketMessage senderSocketMessage = new SenderSocketMessage(message, this);
+        this.serverController.notifyNetworkMessage(senderSocketMessage, SocketMessageDirection.OUT);
         this.out.writeObject(message);
     }
 
@@ -49,8 +53,6 @@ public class ServerSocketManager extends Thread {
             while (true) {
                 try {
                     SocketMessage receivedMessage = (SocketMessage) in.readObject();
-                    System.out.println("Server: received "+ receivedMessage);
-
                     this.serverController.onMessage(receivedMessage, this);
 
                 } catch (java.net.SocketException e) {
@@ -69,12 +71,9 @@ public class ServerSocketManager extends Thread {
         }
     }
 
-
     @Override
     public void start() {
         System.out.println("Server: New socket");
         super.start();
     }
-
-
 }

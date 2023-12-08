@@ -1,13 +1,14 @@
 package fr.utc.onzzer.server.communication;
 
 
-import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
+import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.communication.events.Notifier;
+import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
+import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 import fr.utc.onzzer.server.data.ServerController;
-import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class ServerCommunicationController {
+public class ServerCommunicationController extends Notifier {
     private final int serverPort;
 
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
@@ -63,9 +64,11 @@ public class ServerCommunicationController {
             handler.accept(message, sender);
         } else {
             // if handler is null, no function for this message type
-            System.out.println("Unhandled message");
+            System.err.println("Unhandled message");
         }
 
+        final SenderSocketMessage senderSocketMessage = new SenderSocketMessage(message, sender);
+        this.notifyNetworkMessage(senderSocketMessage, SocketMessageDirection.IN);
     }
 
     public void start() {
