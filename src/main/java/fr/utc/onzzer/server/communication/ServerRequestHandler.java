@@ -108,10 +108,10 @@ public class ServerRequestHandler {
     void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
         try {
             this.serverController.getDataTrackServices().getTrack((UUID) rating.get(0));
+            this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
         } catch (TrackLiteNotFoundException e) {
             System.err.println("Server: the specified track (" + (UUID) rating.get(0) + ") does not exist");
         }
-        this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
     }
 
     void updateTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
