@@ -75,6 +75,10 @@ public class ServerCommunicationController extends Notifier {
     }
 
     public void start() {
+        new Thread(() -> startServer()).start();
+    }
+
+    private void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(this.serverPort)) {
             System.out.println("Server: Server started on port " + this.serverPort);
             while (true) {
