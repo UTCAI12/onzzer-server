@@ -295,13 +295,12 @@ public class MainViewController {
                 SocketMessageDirection.OUT
         );
 
-//        // TODO enable these lines when Tracks and User Services interfaces will extends "Service "
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.NEW_USER);
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.UPDATE_USER);
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.DELETE_USER);
-//
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.NEW_TRACK);
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.NEW_USER);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.UPDATE_USER);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.DELETE_USER);
+
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.NEW_TRACK);
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
     }
 }
