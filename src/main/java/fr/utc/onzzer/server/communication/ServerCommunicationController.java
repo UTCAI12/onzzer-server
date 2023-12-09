@@ -1,6 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
-
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
@@ -41,6 +41,9 @@ public class ServerCommunicationController extends Notifier {
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
+            serverRequestHandler.publishRating(message, (HashMap) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping

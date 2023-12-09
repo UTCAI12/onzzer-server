@@ -1,5 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
@@ -11,7 +12,9 @@ import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -100,6 +103,16 @@ public class ServerRequestHandler {
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
         this.sendAllExclude(message, sender.getUser().getId());
         // TODO track should be added to the local model
+    }
+
+    void publishRating(final SocketMessage message, final HashMap rating, final ServerSocketManager sender) {
+        try {
+            TrackLite track = this.serverController.getDataTrackServices().getTrack((UUID) rating.get(1));
+        } catch (Exception e){
+
+        }
+        Rating rating2 = (Rating) rating.get(2);
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_RATING, rating), rating2.getUser().getId());
     }
 
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
