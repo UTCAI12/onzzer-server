@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<GridPane hgap="1.0" prefHeight="410.0" prefWidth="868.0" style="" vgap="1.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" maxWidth="762.0" minWidth="10.0" prefWidth="436.0" />
+      <ColumnConstraints hgrow="ALWAYS" maxWidth="551.0" minWidth="10.0" prefWidth="431.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+   </rowConstraints>
+   <children>
+      <VBox>
+         <children>
+            <HBox prefHeight="31.0" prefWidth="334.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Connected users" textAlignment="CENTER" wrappingWidth="436.0">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="colUserConnect" prefWidth="104.0" text="User connect" />
+                  <TableColumn fx:id="colUserId" prefWidth="194.0" text="User Id" />
+                  <TableColumn fx:id="colUserName" prefWidth="101.0" text="User Name" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <VBox GridPane.columnIndex="1">
+         <children>
+            <HBox>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Tracks" textAlignment="CENTER" wrappingWidth="400.0">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <TableView fx:id="tableTracks" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="colTrackId" prefWidth="139.0" text="Track Id" />
+                  <TableColumn fx:id="colTrackUserId" text="User Id" />
+                  <TableColumn fx:id="colTrackTitle" prefWidth="56.0" text="Track title" />
+                  <TableColumn fx:id="colTrackAuthor" prefWidth="70.0" text="Track author" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <VBox GridPane.rowIndex="1">
+         <children>
+            <HBox>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="In Socket messages" textAlignment="CENTER" wrappingWidth="400.0">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <TableView fx:id="tableInMessages" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="colInMessagesDate" prefWidth="95.0" text="Date" />
+                  <TableColumn fx:id="colInMessagesType" prefWidth="124.0" text="Message Type" />
+                  <TableColumn fx:id="colInMessagesFrom" prefWidth="92.0" text="From" />
+                  <TableColumn fx:id="colInMessagesObject" prefWidth="88.0" text="Object" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <HBox>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Out Socket messages" textAlignment="CENTER" wrappingWidth="400.0">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
+            <TableView fx:id="tableOutMessages" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="colOutMessagesDate" prefWidth="105.0" text="Date" />
+                  <TableColumn fx:id="colOutMessagesType" prefWidth="114.0" text="Message Type" />
+                  <TableColumn fx:id="colOutMessagesTo" prefWidth="92.0" text="To" />
+                  <TableColumn fx:id="colOutMessagesObject" prefWidth="88.0" text="Object" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+   </children>
+</GridPane>
