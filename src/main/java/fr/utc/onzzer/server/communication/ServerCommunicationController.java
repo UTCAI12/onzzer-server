@@ -13,6 +13,7 @@ import fr.utc.onzzer.server.data.ServerController;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -43,7 +44,7 @@ public class ServerCommunicationController extends Notifier {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
-            serverRequestHandler.publishRating(message, (HashMap) message.object, sender);
+            serverRequestHandler.publishRating(message, (ArrayList<Object>) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping

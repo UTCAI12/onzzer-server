@@ -105,11 +105,11 @@ public class ServerRequestHandler {
         // TODO track should be added to the local model
     }
 
-    void publishRating(final SocketMessage message, final HashMap rating, final ServerSocketManager sender) {
+    void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
         try {
-            TrackLite track = this.serverController.getDataTrackServices().getTrack((UUID) rating.get(1));
-        } catch (Exception e) {
-
+            this.serverController.getDataTrackServices().getTrack((UUID) rating.get(1));
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the specified track (" + (UUID) rating.get(1) + ") does not exist");
         }
         this.sendAllExclude(message, ((Rating) rating.get(2)).getUser().getId());
     }
