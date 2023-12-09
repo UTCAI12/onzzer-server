@@ -1,4 +1,4 @@
-package fr.utc.onzzer.server.data.interfaces.impl;
+package fr.utc.onzzer.server.data.impl;
 
 import fr.utc.onzzer.common.dataclass.*;
 import fr.utc.onzzer.common.services.Listenable;
@@ -6,7 +6,7 @@ import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
-import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
+import fr.utc.onzzer.server.data.DataTrackServices;
 
 import java.util.*;
 

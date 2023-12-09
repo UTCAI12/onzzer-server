@@ -1,13 +1,12 @@
-package fr.utc.onzzer.server.data.interfaces.impl;
+package fr.utc.onzzer.server.data.impl;
 
 import fr.utc.onzzer.common.dataclass.ModelUpdateTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
-import fr.utc.onzzer.common.dataclass.User;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.services.Listenable;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
-import fr.utc.onzzer.server.data.interfaces.DataUserServices;
+import fr.utc.onzzer.server.data.DataUserServices;
 import fr.utc.onzzer.server.communication.ServerSocketManager;
 
 import java.util.ArrayList;

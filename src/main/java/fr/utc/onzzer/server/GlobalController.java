@@ -1,20 +1,20 @@
 package fr.utc.onzzer.server;
 
 import fr.utc.onzzer.server.communication.ServerCommunicationController;
-import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.DataServicesProvider;
 
 public class GlobalController {
 
-    private final ServerController dataServicesProvider;
+    private final DataServicesProvider dataServicesProvider;
 
     private final ServerCommunicationController comServicesProvider;
 
     public GlobalController(int port) {
-        this.dataServicesProvider = new ServerController();
+        this.dataServicesProvider = new DataServicesProvider();
         this.comServicesProvider = new ServerCommunicationController(port, this.dataServicesProvider);
     }
 
-    public ServerController getDataServicesProvider() {
+    public DataServicesProvider getDataServicesProvider() {
         return this.dataServicesProvider;
     }
 

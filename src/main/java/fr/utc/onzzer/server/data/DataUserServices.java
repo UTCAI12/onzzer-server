@@ -1,4 +1,4 @@
-package fr.utc.onzzer.server.data.interfaces;
+package fr.utc.onzzer.server.data;
 
 import java.util.List;
 import java.util.UUID;
