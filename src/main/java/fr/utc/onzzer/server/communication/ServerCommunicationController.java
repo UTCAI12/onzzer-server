@@ -11,6 +11,7 @@ import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 import fr.utc.onzzer.server.data.ServerController;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,12 +26,12 @@ public class ServerCommunicationController extends Notifier {
 
     private final ServerRequestHandler serverRequestHandler;
 
-    private final ServerController serverController;
+    private final DataServicesProvider dataServicesProvider;
 
-    public ServerCommunicationController(final int serverPort, ServerController serverController) {
+    public ServerCommunicationController(final int serverPort, DataServicesProvider dataServicesProvider) {
         this.serverPort = serverPort;
-        this.serverController = serverController;
-        this.serverRequestHandler = new ServerRequestHandler(serverController);
+        this.dataServicesProvider = dataServicesProvider;
+        this.serverRequestHandler = new ServerRequestHandler(dataServicesProvider);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler

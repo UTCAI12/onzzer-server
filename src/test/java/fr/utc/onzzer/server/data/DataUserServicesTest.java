@@ -1,19 +1,11 @@
 package fr.utc.onzzer.server.data;
 
-import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
-import fr.utc.onzzer.server.communication.ServerSocketManager;
-import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
-import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
-import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
-import fr.utc.onzzer.server.data.interfaces.DataUserServices;
-import fr.utc.onzzer.server.data.interfaces.impl.DataTrackServicesImpl;
-import fr.utc.onzzer.server.data.interfaces.impl.DataUserServicesImpl;
+import fr.utc.onzzer.server.data.impl.DataUserServicesImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.Socket;
 import java.util.UUID;
 
 public class DataUserServicesTest {

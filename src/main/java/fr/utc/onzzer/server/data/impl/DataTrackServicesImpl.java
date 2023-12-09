@@ -1,4 +1,4 @@
-package fr.utc.onzzer.server.data.interfaces.impl;
+package fr.utc.onzzer.server.data.impl;
 
 import fr.utc.onzzer.common.dataclass.*;
 import fr.utc.onzzer.common.services.Listenable;
@@ -6,7 +6,7 @@ import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
-import fr.utc.onzzer.server.data.interfaces.DataTrackServices;
+import fr.utc.onzzer.server.data.DataTrackServices;
 
 import java.util.*;
 
@@ -24,7 +24,7 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
             dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
         }
         else if (dataRepository.getUsersAndTracks().get(user).contains(track)) {
-            this.notify(track, TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
+            this.notify(track, TrackLite.class, ModelUpdateTypes.NEW_TRACK);
             return;
         }
         dataRepository.getUsersAndTracks().get(user).add(track);
@@ -90,6 +90,8 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
             throw new TrackLiteNotFoundException();
         }
         dataRepository.getUsersAndTracks().put(userLite, new ArrayList<>());
+
+        this.notify(null, TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
     }
 
     @Override
