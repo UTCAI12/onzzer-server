@@ -6,7 +6,7 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
@@ -21,9 +21,9 @@ import java.util.UUID;
 
 public class ServerRequestHandler {
 
-    private ServerController serverController;
+    private DataServicesProvider serverController;
 
-    public ServerRequestHandler(ServerController serverController) {
+    public ServerRequestHandler(DataServicesProvider serverController) {
         this.serverController = serverController;
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> this.sendAllExclude(new SocketMessage(SocketMessagesTypes.SERVER_STOPPED, null), null)));
@@ -99,10 +99,10 @@ public class ServerRequestHandler {
     }
 
 
-    void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) {
+    void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
+        serverController.getDataTrackServices().addTrack(trackLite, sender.getUser());
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
-        this.sendAllExclude(message, sender.getUser().getId());
-        // TODO track should be added to the local model
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
     void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
@@ -112,6 +112,18 @@ public class ServerRequestHandler {
             System.err.println("Server: the specified track (" + (UUID) rating.get(0) + ") does not exist");
         }
         this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
+    }
+
+    void updateTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
+        serverController.getDataTrackServices().updateTrack(trackLite);
+        // each sender (ClientSocketHandler) has a user associated, forwarding the new track
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UPDATE_TRACK, trackLite), sender.getUser().getId());
+    }
+
+    void unpublishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws Exception {
+        serverController.getDataTrackServices().removeTrack(trackLite, sender.getUser());
+        // each sender (ClientSocketHandler) has a user associated, forwarding the new track
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UNPUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
