@@ -8,13 +8,14 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.server.communication.events.Notifier;
 import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
-import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -70,6 +71,9 @@ public class ServerCommunicationController extends Notifier {
         });
         messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
             serverRequestHandler.downloadTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
+            serverRequestHandler.publishComment(message, (ArrayList<Object>) message.object, sender);
         });
     }
 
