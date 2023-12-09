@@ -96,12 +96,23 @@ public class ServerRequestHandler {
     }
 
 
-    void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) {
+    void publishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
+        serverController.getDataTrackServices().addTrack(trackLite, sender.getUser());
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
-        this.sendAllExclude(message, sender.getUser().getId());
-        // TODO track should be added to the local model
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
+    void updateTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
+        serverController.getDataTrackServices().updateTrack(trackLite);
+        // each sender (ClientSocketHandler) has a user associated, forwarding the new track
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UPDATE_TRACK, trackLite), sender.getUser().getId());
+    }
+
+    void unpublishTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws Exception {
+        serverController.getDataTrackServices().removeTrack(trackLite, sender.getUser());
+        // each sender (ClientSocketHandler) has a user associated, forwarding the new track
+        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UNPUBLISH_TRACK, trackLite), sender.getUser().getId());
+    }
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
         try {
             UUID trackId = (UUID) message.object;
