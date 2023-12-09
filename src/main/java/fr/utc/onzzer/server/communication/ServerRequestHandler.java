@@ -61,25 +61,22 @@ public class ServerRequestHandler {
 
 
     void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
-        // update the local model with the new user
-        this.serverController.getDataUserServices().addUser(userLite, sender);
-
-        // associate the ClientHandler with the appropriate User
-        sender.setUser(userLite);
-
-        // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
-        this.sendAllExclude(message, userLite.getId());
-
-        // TODO : remove multiple message sending, send only one global message : SocketMessagesTypes.USER_CONNECTED
         SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
+
         try {
             sender.send(m);
+
+            // update the local model with the new user
+            this.serverController.getDataUserServices().addUser(userLite, sender);
+
+            // associate the ClientHandler with the appropriate User
+            sender.setUser(userLite);
+
+            // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
+            this.sendAllExclude(message, userLite.getId());
+
         } catch (IOException e) {
-            try {
-                this.serverController.getDataUserServices().deleteUser(userLite);
-            } catch (UserLiteNotFoundException e2){
-                System.err.println("Server: The user does not exist");
-            }
+            System.err.println("Server: an error occurred while sending the message: " + e.getMessage());
         }
     }
 
