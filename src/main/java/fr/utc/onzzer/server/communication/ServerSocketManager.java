@@ -3,6 +3,8 @@ package fr.utc.onzzer.server.communication;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
+import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 
 import java.io.*;
 import java.net.Socket;
@@ -66,6 +68,7 @@ public class ServerSocketManager extends Thread {
 
 
     public void send(final SocketMessage message) throws IOException {
+        this.serverController.notifyNetworkMessage(new SenderSocketMessage(message, this), SocketMessageDirection.OUT);
         this.outputStream.writeObject(message);
     }
 
