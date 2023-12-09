@@ -8,7 +8,9 @@ import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.server.communication.events.Notifier;
 import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
-import fr.utc.onzzer.server.data.DataServicesProvider;
+import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -39,8 +41,26 @@ public class ServerCommunicationController extends Notifier {
         messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
             serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
         });
+        messageHandlers.put(SocketMessagesTypes.UPDATE_TRACK, (message, sender) -> {
+            try {
+                serverRequestHandler.updateTrack(message, (TrackLite) message.object, sender);
+            } catch (TrackLiteNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
-            serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
+            try {
+                serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
+            } catch (TrackLiteNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        messageHandlers.put(SocketMessagesTypes.UNPUBLISH_TRACK, (message, sender) -> {
+            try {
+                serverRequestHandler.unpublishTrack(message, (TrackLite) message.object, sender);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping
