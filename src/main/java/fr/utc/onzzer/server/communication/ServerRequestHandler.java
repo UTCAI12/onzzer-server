@@ -5,7 +5,7 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.server.data.ServerController;
+import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
@@ -18,9 +18,9 @@ import java.util.UUID;
 
 public class ServerRequestHandler {
 
-    private ServerController serverController;
+    private DataServicesProvider serverController;
 
-    public ServerRequestHandler(ServerController serverController) {
+    public ServerRequestHandler(DataServicesProvider serverController) {
         this.serverController = serverController;
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> this.sendAllExclude(new SocketMessage(SocketMessagesTypes.SERVER_STOPPED, null), null)));
