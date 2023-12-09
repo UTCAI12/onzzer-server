@@ -71,7 +71,14 @@ public class ServerRequestHandler {
         this.sendAllExclude(message, userLite.getId());
 
         // TODO : remove multiple message sending, send only one global message : SocketMessagesTypes.USER_CONNECTED
-        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
+        ArrayList<UserLite> allUsers = new ArrayList<>(this.serverController.getDataUserServices().getAllUsers());
+        try {
+            allUsers.remove(userLite);
+        } catch (UnsupportedOperationException e) {
+            System.out.println("Server: cannot remove the new user from the getAllUsers list");
+        }
+
+        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(allUsers));
         try {
             sender.send(m);
         } catch (IOException e) {
