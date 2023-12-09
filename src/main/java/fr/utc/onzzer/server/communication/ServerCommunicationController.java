@@ -2,9 +2,13 @@ package fr.utc.onzzer.server.communication;
 
 
 import fr.utc.onzzer.common.dataclass.TrackLite;
+import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.server.communication.events.Notifier;
+import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
+import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
+import fr.utc.onzzer.server.data.ServerController;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,18 +17,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class ServerCommunicationController {
+public class ServerCommunicationController extends Notifier {
     private final int serverPort;
 
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
 
     private final ServerRequestHandler serverRequestHandler;
-    private final Map<UserLite, ServerSocketManager> users;
 
-    public ServerCommunicationController(final int serverPort) {
+    private final ServerController serverController;
+
+    public ServerCommunicationController(final int serverPort, ServerController serverController) {
         this.serverPort = serverPort;
-        this.users = new HashMap<>();
-        this.serverRequestHandler = new ServerRequestHandler(users);
+        this.serverController = serverController;
+        this.serverRequestHandler = new ServerRequestHandler(serverController);
 
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
@@ -36,6 +41,15 @@ public class ServerCommunicationController {
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
+            // No action required after user ping
+        });
+        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
+            serverRequestHandler.handleGetTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
+            serverRequestHandler.downloadTrack(message, sender);
         });
     }
 
@@ -53,12 +67,18 @@ public class ServerCommunicationController {
             handler.accept(message, sender);
         } else {
             // if handler is null, no function for this message type
-            System.out.println("Unhandled message");
+            System.err.println("Unhandled message");
         }
 
+        final SenderSocketMessage senderSocketMessage = new SenderSocketMessage(message, sender);
+        this.notifyNetworkMessage(senderSocketMessage, SocketMessageDirection.IN);
     }
 
     public void start() {
+        new Thread(() -> startServer()).start();
+    }
+
+    private void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(this.serverPort)) {
             System.out.println("Server: Server started on port " + this.serverPort);
             while (true) {
