@@ -5,11 +5,12 @@ import java.util.List;
 import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.common.services.Service;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
-public interface DataTrackServices {
+public interface DataTrackServices extends Service {
 
     void addTrack(TrackLite track, UserLite user);
     
