@@ -108,11 +108,10 @@ public class ServerRequestHandler {
     void publishRating(final SocketMessage message, final HashMap rating, final ServerSocketManager sender) {
         try {
             TrackLite track = this.serverController.getDataTrackServices().getTrack((UUID) rating.get(1));
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
-        Rating rating2 = (Rating) rating.get(2);
-        this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_RATING, rating), rating2.getUser().getId());
+        this.sendAllExclude(message, ((Rating) rating.get(2)).getUser().getId());
     }
 
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
