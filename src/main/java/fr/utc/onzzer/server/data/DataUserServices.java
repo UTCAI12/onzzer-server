@@ -14,6 +14,8 @@ public interface DataUserServices extends Service {
 
     void deleteUser(UserLite user) throws UserLiteNotFoundException;
 
+    void deleteAllUsers();
+
     void updateUser(UserLite user) throws UserLiteNotFoundException;
 
     ServerSocketManager getSocket(UserLite user) throws UserLiteNotFoundException;

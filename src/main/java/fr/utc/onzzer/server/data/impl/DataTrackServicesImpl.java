@@ -91,7 +91,7 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
         }
         dataRepository.getUsersAndTracks().put(userLite, new ArrayList<>());
 
-        this.notify(null, TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
+        this.notify(null, TrackLite.class, ModelUpdateTypes.DELETE_ALL_TRACKS);
     }
 
     @Override

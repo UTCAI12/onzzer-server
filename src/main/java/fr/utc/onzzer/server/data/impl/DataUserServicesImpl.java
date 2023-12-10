@@ -5,6 +5,7 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.services.Listenable;
 import fr.utc.onzzer.server.data.DataRepository;
+import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.DataUserServices;
 import fr.utc.onzzer.server.communication.ServerSocketManager;
@@ -44,6 +45,13 @@ public class DataUserServicesImpl extends Listenable implements DataUserServices
         dataRepository.getUsersAndTracks().remove(user);
         dataRepository.getUsersAndSockets().remove(user);
         this.notify(user, UserLite.class, ModelUpdateTypes.DELETE_USER);
+    }
+
+    @Override
+    public void deleteAllUsers() {
+        dataRepository.getUsersAndTracks().clear();
+
+        this.notify(null, TrackLite.class, ModelUpdateTypes.DELETE_ALL_USERS);
     }
 
     @Override
