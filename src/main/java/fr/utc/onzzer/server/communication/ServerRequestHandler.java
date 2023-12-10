@@ -1,5 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
@@ -11,7 +12,9 @@ import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -99,6 +102,15 @@ public class ServerRequestHandler {
         this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
+    void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
+        try {
+            this.serverController.getDataTrackServices().getTrack((UUID) rating.get(0));
+            this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the specified track (" + (UUID) rating.get(0) + ") does not exist");
+        }
+    }
+
     void updateTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
         serverController.getDataTrackServices().updateTrack(trackLite);
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
@@ -110,6 +122,7 @@ public class ServerRequestHandler {
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
         this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UNPUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
+
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
         try {
             UUID trackId = (UUID) message.object;

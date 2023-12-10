@@ -1,6 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
-
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
@@ -14,6 +14,7 @@ import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -60,6 +61,9 @@ public class ServerCommunicationController extends Notifier {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
+            serverRequestHandler.publishRating(message, (ArrayList<Object>) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping
