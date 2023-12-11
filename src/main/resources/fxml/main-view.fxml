@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -65,11 +66,12 @@
          <children>
             <HBox>
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="In Socket messages" textAlignment="CENTER" wrappingWidth="400.0">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="In Socket messages" textAlignment="CENTER" wrappingWidth="323.0">
                      <font>
                         <Font size="23.0" />
                      </font>
                   </Text>
+                  <CheckBox fx:id="chkInShowPing" mnemonicParsing="false" text="Show ping" />
                </children>
             </HBox>
             <TableView fx:id="tableInMessages" VBox.vgrow="ALWAYS">
@@ -86,11 +88,12 @@
          <children>
             <HBox>
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Out Socket messages" textAlignment="CENTER" wrappingWidth="400.0">
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Out Socket messages" textAlignment="CENTER" wrappingWidth="334.0">
                      <font>
                         <Font size="23.0" />
                      </font>
                   </Text>
+                  <CheckBox fx:id="chkOutShowPing" mnemonicParsing="false" text="Show ping" />
                </children>
             </HBox>
             <TableView fx:id="tableOutMessages" VBox.vgrow="ALWAYS">
