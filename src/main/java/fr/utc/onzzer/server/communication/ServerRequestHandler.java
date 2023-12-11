@@ -1,6 +1,7 @@
 package fr.utc.onzzer.server.communication;
 
 import fr.utc.onzzer.common.dataclass.Comment;
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
@@ -12,7 +13,9 @@ import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,25 +65,22 @@ public class ServerRequestHandler {
 
 
     void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
-        // update the local model with the new user
-        this.serverController.getDataUserServices().addUser(userLite, sender);
-
-        // associate the ClientHandler with the appropriate User
-        sender.setUser(userLite);
-
-        // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
-        this.sendAllExclude(message, userLite.getId());
-
-        // TODO : remove multiple message sending, send only one global message : SocketMessagesTypes.USER_CONNECTED
         SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
+
         try {
             sender.send(m);
+
+            // update the local model with the new user
+            this.serverController.getDataUserServices().addUser(userLite, sender);
+
+            // associate the ClientHandler with the appropriate User
+            sender.setUser(userLite);
+
+            // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
+            this.sendAllExclude(message, userLite.getId());
+
         } catch (IOException e) {
-            try {
-                this.serverController.getDataUserServices().deleteUser(userLite);
-            } catch (UserLiteNotFoundException e2){
-                System.err.println("Server: The user does not exist");
-            }
+            System.err.println("Server: an error occurred while sending the message: " + e.getMessage());
         }
     }
 
@@ -103,6 +103,15 @@ public class ServerRequestHandler {
         this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
+    void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
+        try {
+            this.serverController.getDataTrackServices().getTrack((UUID) rating.get(0));
+            this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the specified track (" + (UUID) rating.get(0) + ") does not exist");
+        }
+    }
+
     void updateTrack(final SocketMessage message, final TrackLite trackLite, final ServerSocketManager sender) throws TrackLiteNotFoundException {
         serverController.getDataTrackServices().updateTrack(trackLite);
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
@@ -114,6 +123,7 @@ public class ServerRequestHandler {
         // each sender (ClientSocketHandler) has a user associated, forwarding the new track
         this.sendAllExclude(new SocketMessage(SocketMessagesTypes.UNPUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
+
     void handleGetTrack(final SocketMessage message, final ServerSocketManager sender) {
         try {
             UUID trackId = (UUID) message.object;
