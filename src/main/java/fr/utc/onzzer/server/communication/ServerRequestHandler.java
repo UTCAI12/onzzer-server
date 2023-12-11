@@ -1,5 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.Comment;
 import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
@@ -147,6 +148,15 @@ public class ServerRequestHandler {
             }
         } catch (RequestedTrackNotFound e) {
             System.err.println("Track not found: " + e.getMessage());
+        }
+    }
+
+    void publishComment(final SocketMessage message, final ArrayList<Object> comment, final ServerSocketManager sender) {
+        try {
+            this.serverController.getDataTrackServices().getTrack((UUID) comment.get(0));
+            this.sendAllExclude(message, ((Comment) comment.get(1)).getUser().getId());
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the specified track (" + (UUID) comment.get(0) + ") does not exist");
         }
     }
 }

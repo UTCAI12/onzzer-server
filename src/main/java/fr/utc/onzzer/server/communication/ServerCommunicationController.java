@@ -74,6 +74,9 @@ public class ServerCommunicationController extends Notifier {
         messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
             serverRequestHandler.downloadTrack(message, sender);
         });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
+            serverRequestHandler.publishComment(message, (ArrayList<Object>) message.object, sender);
+        });
     }
 
     /**
