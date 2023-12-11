@@ -270,7 +270,7 @@ public class MainViewController {
         controller.getDataServicesProvider().getDataTrackServices().getAllTracks().forEach(track -> {
 
                 String id = track.getId().toString();
-                String userId = track.getUser().toString();
+                String userId = track.getUserId().toString();
                 String title = track.getTitle();
                 String author = track.getAuthor();
 
@@ -305,7 +305,11 @@ public class MainViewController {
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
-                    String from = senderSocketMessage.sender().getUser().getUsername();
+
+                    String from = "Unknow";
+                    if (senderSocketMessage.sender().getUser() != null)
+                        from = senderSocketMessage.sender().getUser().getUsername();
+
                     String object = "None";
                     if (senderSocketMessage.message().object != null)
                         object = senderSocketMessage.message().object.toString();
@@ -326,12 +330,16 @@ public class MainViewController {
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
-                    String from = senderSocketMessage.sender().getUser().getUsername();
+
+                    String to = "Unknow";
+                    if (senderSocketMessage.sender().getUser() != null)
+                        to = senderSocketMessage.sender().getUser().getUsername();
+
                     String object = "None";
                     if (senderSocketMessage.message().object != null)
                         object = senderSocketMessage.message().object.toString();
 
-                    MessageTable messageTable = new MessageTable(date, type, from, object);
+                    MessageTable messageTable = new MessageTable(date, type, to, object);
 
                     // Ajouter le message à la table
                     outMessages.add(messageTable);
