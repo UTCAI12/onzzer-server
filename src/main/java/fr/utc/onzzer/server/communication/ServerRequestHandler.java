@@ -1,10 +1,6 @@
 package fr.utc.onzzer.server.communication;
 
-import fr.utc.onzzer.common.dataclass.Comment;
-import fr.utc.onzzer.common.dataclass.Rating;
-import fr.utc.onzzer.common.dataclass.Track;
-import fr.utc.onzzer.common.dataclass.TrackLite;
-import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.common.dataclass.*;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.server.data.DataServicesProvider;
@@ -13,9 +9,7 @@ import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,13 +62,13 @@ public class ServerRequestHandler {
         SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
 
         try {
+            // associate the ClientHandler with the appropriate User
+            sender.setUser(userLite);
+
             sender.send(m);
 
             // update the local model with the new user
             this.serverController.getDataUserServices().addUser(userLite, sender);
-
-            // associate the ClientHandler with the appropriate User
-            sender.setUser(userLite);
 
             // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
             this.sendAllExclude(message, userLite.getId());
@@ -85,8 +79,10 @@ public class ServerRequestHandler {
     }
 
     void userDisconnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
-        // removing the user from the local "model"
+        sender.close();
+
         try {
+            // removing the user from the local "model"
             this.serverController.getDataUserServices().deleteUser(userLite);
         } catch (UserLiteNotFoundException e) {
             System.err.println("Server: The user does not exist");

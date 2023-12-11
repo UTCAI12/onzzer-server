@@ -1,12 +1,15 @@
 package fr.utc.onzzer.server.communication;
 
+import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -74,6 +77,7 @@ public class ServerSocketManager extends Thread {
 
     @Override
     public void run() {
+        boolean interrupted = false;
         while (!socket.isClosed()) {
             try {
                 SocketMessage receivedMessage = (SocketMessage) inputStream.readObject();
@@ -81,30 +85,41 @@ public class ServerSocketManager extends Thread {
                 this.serverController.onMessage(receivedMessage, this);
             } catch (SocketTimeoutException e) {
                 System.out.println("Client timeout: " + socket.getInetAddress().getHostAddress());
+                interrupted = true;
                 break;  // Exit the loop on timeout
             }catch (SocketException | EOFException e) {
                 // Exception throw when waiting of an object then the client disconnect
                 System.out.println("Client disconnected: " + socket.getInetAddress().getHostAddress());
+                interrupted = true;
                 break;  // Exit the loop on disconnection
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                interrupted = true;
                 break;
             }
         }
-        this.disconnect();
+
+        if (interrupted)
+            this.disconnect();
     }
 
     public void disconnect(){
-        this.timerPong.cancel();
         final SocketMessage socketMessage = new SocketMessage(SocketMessagesTypes.USER_DISCONNECT, this.user);
         this.serverController.onMessage(socketMessage, this);
+        this.close();
+    }
+
+    public void close() {
+        this.timerPong.cancel();
+
         try {
-            System.out.println("Server: Socket closed");
             this.socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
+
+
 
 
     @Override
