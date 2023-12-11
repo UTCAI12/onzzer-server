@@ -1,4 +1,4 @@
-package fr.utc.onzzer.server.communication;
+package fr.utc.onzzer.server.communication.impl;
 
 import fr.utc.onzzer.common.dataclass.*;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;

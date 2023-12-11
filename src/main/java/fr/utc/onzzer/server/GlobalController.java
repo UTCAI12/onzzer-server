@@ -1,6 +1,6 @@
 package fr.utc.onzzer.server;
 
-import fr.utc.onzzer.server.communication.ServerCommunicationController;
+import fr.utc.onzzer.server.communication.impl.ServerCommunicationController;
 import fr.utc.onzzer.server.data.DataServicesProvider;
 
 public class GlobalController {

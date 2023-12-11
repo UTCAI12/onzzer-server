@@ -7,7 +7,7 @@ import fr.utc.onzzer.common.services.Listenable;
 import fr.utc.onzzer.server.data.DataRepository;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 import fr.utc.onzzer.server.data.DataUserServices;
-import fr.utc.onzzer.server.communication.ServerSocketManager;
+import fr.utc.onzzer.server.communication.impl.ServerSocketManager;
 
 import java.util.ArrayList;
 import java.util.List;

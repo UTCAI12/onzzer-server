@@ -1,6 +1,5 @@
-package fr.utc.onzzer.server.communication;
+package fr.utc.onzzer.server.communication.impl;
 
-import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;

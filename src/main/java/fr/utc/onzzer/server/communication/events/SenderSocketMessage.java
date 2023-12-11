@@ -1,7 +1,7 @@
 package fr.utc.onzzer.server.communication.events;
 
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
-import fr.utc.onzzer.server.communication.ServerSocketManager;
+import fr.utc.onzzer.server.communication.impl.ServerSocketManager;
 
 import java.io.Serializable;
 
