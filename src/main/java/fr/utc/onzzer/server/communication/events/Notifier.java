@@ -1,12 +1,13 @@
 package fr.utc.onzzer.server.communication.events;
 
 import fr.utc.onzzer.common.dataclass.UpdateListener;
+import fr.utc.onzzer.server.communication.ComNotifierServices;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Notifier implements ComService {
+public class Notifier implements ComNotifierServices {
 
     private final List<ListenerCom> listeners = new ArrayList<>();
 

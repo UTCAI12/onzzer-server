@@ -14,7 +14,7 @@ public class MainServerHMI extends Application {
         public void start(Stage stage) throws IOException {
             // Global controller that contains services references.
             GlobalController controller = new GlobalController(8000);
-            controller.getComServicesProvider().start();
+            controller.getComServicesProvider().getComServices().start();
 
             // Loading the view.
             FXMLLoader fxmlLoader = new FXMLLoader(MainServerHMI.class.getResource("/fxml/main-view.fxml"));

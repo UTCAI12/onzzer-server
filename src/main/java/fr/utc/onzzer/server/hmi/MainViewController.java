@@ -301,7 +301,7 @@ public class MainViewController {
     public MainViewController(final GlobalController controller) {
         this.controller = controller;
 
-        controller.getComServicesProvider().addNetworkListener(
+        controller.getComServicesProvider().getComNotifierServices().addNetworkListener(
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
@@ -322,7 +322,7 @@ public class MainViewController {
                 SocketMessageDirection.IN
         );
 
-        controller.getComServicesProvider().addNetworkListener(
+        controller.getComServicesProvider().getComNotifierServices().addNetworkListener(
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
