@@ -59,9 +59,18 @@ public class ServerRequestHandler {
 
 
     void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
-        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
-
         try {
+            // checks if the user isn't already connected
+            for(UserLite user: serverController.getDataUserServices().getAllUsers()) {
+                if (user.getId().equals(userLite.getId())) {
+                    SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_LOGIN_ERROR, "User already connected");
+                    sender.send(m);
+                    return;
+                }
+            }
+
+            SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
+
             // associate the ClientHandler with the appropriate User
             sender.setUser(userLite);
 
