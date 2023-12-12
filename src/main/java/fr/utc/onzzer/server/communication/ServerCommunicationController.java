@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.List;
 
 public class ServerCommunicationController extends Notifier {
     private final int serverPort;
@@ -36,7 +37,7 @@ public class ServerCommunicationController extends Notifier {
         this.messageHandlers = new HashMap<>();
         // Associez les types de message aux méthodes correspondantes de clientHandler
         messageHandlers.put(SocketMessagesTypes.USER_CONNECT, (message, sender) -> {
-            serverRequestHandler.userConnect(message, (UserLite) message.object, sender);
+            serverRequestHandler.userConnect(message, (HashMap<UserLite, List<TrackLite>>) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
             serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
