@@ -170,4 +170,13 @@ public class ServerRequestHandler {
             System.err.println("Server: the specified track (" + (UUID) comment.get(0) + ") does not exist");
         }
     }
+
+    void editUser(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
+        try {
+            this.serverController.getDataUserServices().updateUser(userLite);
+            this.sendAllExclude(message, userLite.getId());
+        } catch (UserLiteNotFoundException e) {
+            System.err.println("Server: the specified user (" + userLite.getId() + ") does not exist");
+        }
+    }
 }
