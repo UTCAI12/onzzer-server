@@ -17,6 +17,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -78,7 +79,7 @@ public class ServerCommunicationController extends Notifier implements ComServic
 
         // Handle USER_CONNECT
         this.messageHandlers.put(SocketMessagesTypes.USER_CONNECT, (message, sender) -> {
-            serverRequestHandler.userConnect(message, (UserLite) message.object, sender);
+            serverRequestHandler.userConnect(message, (HashMap<UserLite, List<TrackLite>>) message.object, sender);
         });
         // Handle USER_DISCONNECT
         this.messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
