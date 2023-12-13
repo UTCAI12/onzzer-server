@@ -10,6 +10,7 @@ import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,10 +59,21 @@ public class ServerRequestHandler {
     }
 
 
-    void userConnect(final SocketMessage message, final UserLite userLite, final ServerSocketManager sender) {
-        SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
-
+    void userConnect(final SocketMessage message, final HashMap<UserLite, List<TrackLite>> connectData, final ServerSocketManager sender) {
+        UserLite userLite = connectData.keySet().iterator().next();
+        List<TrackLite> trackList = connectData.get(userLite);
         try {
+            // checks if the user isn't already connected
+            for(UserLite user: serverController.getDataUserServices().getAllUsers()) {
+                if (user.getId().equals(userLite.getId())) {
+                    SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_LOGIN_ERROR, "User already connected");
+                    sender.send(m);
+                    return;
+                }
+            }
+
+            SocketMessage m = new SocketMessage(SocketMessagesTypes.USER_CONNECTED, new ArrayList<>(this.serverController.getDataUserServices().getAllUsers()));
+
             // associate the ClientHandler with the appropriate User
             sender.setUser(userLite);
 
@@ -69,6 +81,9 @@ public class ServerRequestHandler {
 
             // update the local model with the new user
             this.serverController.getDataUserServices().addUser(userLite, sender);
+            for(TrackLite t: trackList){
+                this.serverController.getDataTrackServices().addTrack(t, userLite);
+            }
 
             // Notify all users exclude "user" in parameter that a new user is connected (just forwarding the initial message)
             this.sendAllExclude(message, userLite.getId());
