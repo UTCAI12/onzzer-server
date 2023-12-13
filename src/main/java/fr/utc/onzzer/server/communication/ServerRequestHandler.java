@@ -7,6 +7,7 @@ import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -114,12 +115,12 @@ public class ServerRequestHandler {
         this.sendAllExclude(new SocketMessage(SocketMessagesTypes.PUBLISH_TRACK, trackLite), sender.getUser().getId());
     }
 
-    void publishRating(final SocketMessage message, final ArrayList<Object> rating, final ServerSocketManager sender) {
+    void publishRating(final SocketMessage message, final Pair<UUID, Rating> rating, final ServerSocketManager sender) {
         try {
-            this.serverController.getDataTrackServices().getTrack((UUID) rating.get(0));
-            this.sendAllExclude(message, ((Rating) rating.get(1)).getUser().getId());
+            this.serverController.getDataTrackServices().getTrack(rating.getKey());
+            this.sendAllExclude(message, rating.getValue().getUser().getId());
         } catch (TrackLiteNotFoundException e) {
-            System.err.println("Server: the specified track (" + (UUID) rating.get(0) + ") does not exist");
+            System.err.println("Server: the specified track (" + rating.getKey() + ") does not exist");
         }
     }
 
@@ -162,12 +163,12 @@ public class ServerRequestHandler {
         }
     }
 
-    void publishComment(final SocketMessage message, final ArrayList<Object> comment, final ServerSocketManager sender) {
+    void publishComment(final SocketMessage message, final Pair<UUID, Comment> comment, final ServerSocketManager sender) {
         try {
-            this.serverController.getDataTrackServices().getTrack((UUID) comment.get(0));
-            this.sendAllExclude(message, ((Comment) comment.get(1)).getUser().getId());
+            this.serverController.getDataTrackServices().getTrack(comment.getKey());
+            this.sendAllExclude(message, comment.getValue().getUser().getId());
         } catch (TrackLiteNotFoundException e) {
-            System.err.println("Server: the specified track (" + (UUID) comment.get(0) + ") does not exist");
+            System.err.println("Server: the specified track (" + comment.getKey() + ") does not exist");
         }
     }
 }
