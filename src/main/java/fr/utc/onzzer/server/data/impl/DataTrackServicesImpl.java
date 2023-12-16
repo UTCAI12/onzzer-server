@@ -24,10 +24,11 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
             dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
         }
         else if (dataRepository.getUsersAndTracks().get(user).contains(track)) {
-            this.notify(track, TrackLite.class, ModelUpdateTypes.NEW_TRACK);
             return;
         }
+
         dataRepository.getUsersAndTracks().get(user).add(track);
+        this.notify(track, TrackLite.class, ModelUpdateTypes.NEW_TRACK);
     }
     
     @Override
