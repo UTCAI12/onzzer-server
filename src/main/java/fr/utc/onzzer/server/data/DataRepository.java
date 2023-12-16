@@ -1,9 +1,8 @@
 package fr.utc.onzzer.server.data;
 
-import fr.utc.onzzer.common.dataclass.Track;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
-import fr.utc.onzzer.server.communication.ServerSocketManager;
+import fr.utc.onzzer.server.communication.impl.ServerSocketManager;
 
 import java.util.HashMap;
 import java.util.List;

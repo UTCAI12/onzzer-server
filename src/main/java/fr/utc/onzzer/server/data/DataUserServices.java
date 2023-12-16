@@ -5,7 +5,7 @@ import java.util.UUID;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.services.Service;
 import fr.utc.onzzer.server.data.exceptions.UserLiteNotFoundException;
-import fr.utc.onzzer.server.communication.ServerSocketManager;
+import fr.utc.onzzer.server.communication.impl.ServerSocketManager;
 
 public interface DataUserServices extends Service {
     UserLite getUser(UUID userId) throws UserLiteNotFoundException;

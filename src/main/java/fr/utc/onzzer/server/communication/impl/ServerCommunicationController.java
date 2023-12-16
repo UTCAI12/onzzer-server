@@ -1,5 +1,4 @@
-package fr.utc.onzzer.server.communication;
-
+package fr.utc.onzzer.server.communication.impl;
 
 import fr.utc.onzzer.common.dataclass.Comment;
 import fr.utc.onzzer.common.dataclass.Rating;
@@ -7,6 +6,8 @@ import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
+import fr.utc.onzzer.server.communication.ComServices;
+import fr.utc.onzzer.server.communication.ComNotifierServices;
 import fr.utc.onzzer.server.communication.events.Notifier;
 import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
@@ -20,7 +21,7 @@ import java.net.Socket;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class ServerCommunicationController extends Notifier {
+public class ServerCommunicationController extends Notifier implements ComServices, ComNotifierServices {
     private final int serverPort;
 
     private final Map<SocketMessagesTypes, BiConsumer<SocketMessage, ServerSocketManager>> messageHandlers;
@@ -78,9 +79,6 @@ public class ServerCommunicationController extends Notifier {
         messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
             serverRequestHandler.publishComment(message, (Pair<UUID, Comment>) message.object, sender);
         });
-        messageHandlers.put(SocketMessagesTypes.USER_UPDATE, (message, sender) -> {
-            serverRequestHandler.editUser(message, (UserLite) message.object, sender);
-        });
     }
 
     /**
@@ -105,12 +103,12 @@ public class ServerCommunicationController extends Notifier {
     }
 
     public void start() {
-        new Thread(() -> startServer()).start();
+        new Thread(this::startServer).start();
     }
 
     private void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(this.serverPort)) {
-//            System.out.println("Server: Server started on port " + this.serverPort);
+            System.out.println("Server: Server started on port " + this.serverPort);
             while (true) {
                 final Socket clientSocket = serverSocket.accept();
                 new ServerSocketManager(clientSocket, this).start();
