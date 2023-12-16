@@ -43,24 +43,25 @@ public class ServerCommunicationController extends Notifier {
             serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.UPDATE_TRACK, (message, sender) -> {
+
             try {
                 serverRequestHandler.updateTrack(message, (TrackLite) message.object, sender);
             } catch (TrackLiteNotFoundException e) {
-                throw new RuntimeException(e);
+                System.err.println("Server: Track not found for update : " + ((TrackLite) message.object).getTitle() + " for user " + sender.getUser().getUsername());
             }
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
             try {
                 serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
             } catch (TrackLiteNotFoundException e) {
-                throw new RuntimeException(e);
+                System.err.println("Server: Track not found for update : " + ((TrackLite) message.object).getTitle() + " for user " + sender.getUser().getUsername());
             }
         });
         messageHandlers.put(SocketMessagesTypes.UNPUBLISH_TRACK, (message, sender) -> {
             try {
                 serverRequestHandler.unpublishTrack(message, (TrackLite) message.object, sender);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.err.println("Server: Track not found for update : " + ((TrackLite) message.object).getTitle() + " for user " + sender.getUser().getUsername());
             }
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
