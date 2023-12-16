@@ -1,5 +1,6 @@
 package fr.utc.onzzer.server.communication.impl;
 
+import fr.utc.onzzer.common.dataclass.Comment;
 import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
@@ -12,14 +13,12 @@ import fr.utc.onzzer.server.communication.events.SenderSocketMessage;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
+import javafx.util.Pair;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class ServerCommunicationController extends Notifier implements ComServices, ComNotifierServices {
@@ -66,7 +65,7 @@ public class ServerCommunicationController extends Notifier implements ComServic
             }
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
-            serverRequestHandler.publishRating(message, (ArrayList<Object>) message.object, sender);
+            serverRequestHandler.publishRating(message, (Pair<UUID, Rating>) message.object, sender);
         });
         messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
             // No action required after user ping
@@ -78,7 +77,7 @@ public class ServerCommunicationController extends Notifier implements ComServic
             serverRequestHandler.downloadTrack(message, sender);
         });
         messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
-            serverRequestHandler.publishComment(message, (ArrayList<Object>) message.object, sender);
+            serverRequestHandler.publishComment(message, (Pair<UUID, Comment>) message.object, sender);
         });
     }
 
