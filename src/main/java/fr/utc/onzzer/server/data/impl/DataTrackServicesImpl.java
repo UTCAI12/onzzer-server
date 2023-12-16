@@ -24,10 +24,11 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
             dataRepository.getUsersAndTracks().put(user, new ArrayList<>());
         }
         else if (dataRepository.getUsersAndTracks().get(user).contains(track)) {
-            this.notify(track, TrackLite.class, ModelUpdateTypes.NEW_TRACK);
             return;
         }
+
         dataRepository.getUsersAndTracks().get(user).add(track);
+        this.notify(track, TrackLite.class, ModelUpdateTypes.NEW_TRACK);
     }
     
     @Override
@@ -67,7 +68,7 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
                 .flatMap(List::stream)
                 .toList()
                 .stream()
-                .filter(trackLite -> trackLite.getId() == trackId)
+                .filter(trackLite -> trackLite.getId().equals(trackId))
                 .findFirst()
                 .orElseThrow(TrackLiteNotFoundException::new);
     }
@@ -77,11 +78,21 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
 
         TrackLite track = getTrack(trackId);
 
-        return dataRepository.getUsersAndTracks().entrySet().stream()
-                .filter(entry -> entry.getValue().contains(track))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseThrow(UserLiteNotFoundException::new);
+        UserLite user = null;
+
+        // replace method above with this one if you want to use a for loop
+        for (Map.Entry<UserLite, List<TrackLite>> entry : dataRepository.getUsersAndTracks().entrySet()) {
+            if (entry.getValue().contains(track)) {
+                user = entry.getKey();
+                break;
+            }
+        }
+
+        if (user == null) {
+            throw new UserLiteNotFoundException();
+        }
+
+        return user;
     }
 
     @Override

@@ -81,15 +81,15 @@ public class ServerSocketManager extends Thread {
         while (!socket.isClosed()) {
             try {
                 SocketMessage receivedMessage = (SocketMessage) inputStream.readObject();
-                System.out.println("Server: received " + receivedMessage);
+//                System.out.println("Server: received " + receivedMessage);
                 this.serverController.onMessage(receivedMessage, this);
             } catch (SocketTimeoutException e) {
-                System.out.println("Client timeout: " + socket.getInetAddress().getHostAddress());
+//                System.out.println("Client timeout: " + socket.getInetAddress().getHostAddress());
                 interrupted = true;
                 break;  // Exit the loop on timeout
             }catch (SocketException | EOFException e) {
                 // Exception throw when waiting of an object then the client disconnect
-                System.out.println("Client disconnected: " + socket.getInetAddress().getHostAddress());
+//                System.out.println("Client disconnected: " + socket.getInetAddress().getHostAddress());
                 interrupted = true;
                 break;  // Exit the loop on disconnection
             } catch (IOException | ClassNotFoundException e) {
@@ -124,7 +124,7 @@ public class ServerSocketManager extends Thread {
 
     @Override
     public void start() {
-        System.out.println("Server: New socket");
+//        System.out.println("Server: New socket");
         super.start();
     }
 }
