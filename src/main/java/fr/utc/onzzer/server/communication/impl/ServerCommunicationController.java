@@ -1,5 +1,6 @@
 package fr.utc.onzzer.server.communication.impl;
 
+import fr.utc.onzzer.common.dataclass.Rating;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
@@ -34,8 +35,51 @@ public class ServerCommunicationController extends Notifier implements ComServic
         this.serverPort = serverPort;
         this.dataServicesProvider = dataServicesProvider;
         this.serverRequestHandler = new ServerRequestHandler(dataServicesProvider);
+
         this.messageHandlers = new HashMap<>();
-        this.handleMessages();
+        // Associez les types de message aux méthodes correspondantes de clientHandler
+        messageHandlers.put(SocketMessagesTypes.USER_CONNECT, (message, sender) -> {
+            serverRequestHandler.userConnect(message, (HashMap<UserLite, List<TrackLite>>) message.object, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
+            serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.UPDATE_TRACK, (message, sender) -> {
+            try {
+                serverRequestHandler.updateTrack(message, (TrackLite) message.object, sender);
+            } catch (TrackLiteNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
+            try {
+                serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
+            } catch (TrackLiteNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        messageHandlers.put(SocketMessagesTypes.UNPUBLISH_TRACK, (message, sender) -> {
+            try {
+                serverRequestHandler.unpublishTrack(message, (TrackLite) message.object, sender);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
+            serverRequestHandler.publishRating(message, (ArrayList<Object>) message.object, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
+            // No action required after user ping
+        });
+        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
+            serverRequestHandler.handleGetTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
+            serverRequestHandler.downloadTrack(message, sender);
+        });
+        messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
+            serverRequestHandler.publishComment(message, (ArrayList<Object>) message.object, sender);
+        });
     }
 
     /**
@@ -73,61 +117,5 @@ public class ServerCommunicationController extends Notifier implements ComServic
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void handleMessages(){
-
-        // Handle USER_CONNECT
-        this.messageHandlers.put(SocketMessagesTypes.USER_CONNECT, (message, sender) -> {
-            serverRequestHandler.userConnect(message, (HashMap<UserLite, List<TrackLite>>) message.object, sender);
-        });
-        // Handle USER_DISCONNECT
-        this.messageHandlers.put(SocketMessagesTypes.USER_DISCONNECT, (message, sender) -> {
-            serverRequestHandler.userDisconnect(message, (UserLite) message.object, sender);
-        });
-        // Handle UPDATE_TRACK
-        messageHandlers.put(SocketMessagesTypes.UPDATE_TRACK, (message, sender) -> {
-            try {
-                serverRequestHandler.updateTrack(message, (TrackLite) message.object, sender);
-            } catch (TrackLiteNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        // Handle PUBLISH_TRACK
-        messageHandlers.put(SocketMessagesTypes.PUBLISH_TRACK, (message, sender) -> {
-            try {
-                serverRequestHandler.publishTrack(message, (TrackLite) message.object, sender);
-            } catch (TrackLiteNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        // Handle UNPUBLISH_TRACK
-        messageHandlers.put(SocketMessagesTypes.UNPUBLISH_TRACK, (message, sender) -> {
-            try {
-                serverRequestHandler.unpublishTrack(message, (TrackLite) message.object, sender);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        // Handle PUBLISH_RATING
-        messageHandlers.put(SocketMessagesTypes.PUBLISH_RATING, (message, sender) -> {
-            serverRequestHandler.publishRating(message, (ArrayList<Object>) message.object, sender);
-        });
-        // Handle USER_PING
-        messageHandlers.put(SocketMessagesTypes.USER_PING, (message, sender) -> {
-            // No action required after user ping
-        });
-        // Handle GET_TRACK
-        messageHandlers.put(SocketMessagesTypes.GET_TRACK, (message, sender) -> {
-            serverRequestHandler.handleGetTrack(message, sender);
-        });
-        // Handle DOWNLOAD_TRACK
-        messageHandlers.put(SocketMessagesTypes.DOWNLOAD_TRACK, (message, sender) -> {
-            serverRequestHandler.downloadTrack(message, sender);
-        });
-        // Handle PUBLISH_COMMENT
-        messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
-            serverRequestHandler.publishComment(message, (ArrayList<Object>) message.object, sender);
-        });
     }
 }
