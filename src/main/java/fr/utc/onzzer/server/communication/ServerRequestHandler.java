@@ -7,6 +7,7 @@ import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.Comment;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
+import fr.utc.onzzer.server.GlobalController;
 import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
@@ -103,9 +104,12 @@ public class ServerRequestHandler {
 
         try {
             // removing the user from the local "model"
+            this.serverController.getDataTrackServices().removeAllTracks(userLite);
             this.serverController.getDataUserServices().deleteUser(userLite);
         } catch (UserLiteNotFoundException e) {
             System.err.println("Server: The user does not exist");
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the track does not exist");
         }
 
         // notifying others users by forwarding the initial message
