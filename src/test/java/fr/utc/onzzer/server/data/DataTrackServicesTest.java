@@ -23,8 +23,8 @@ public class DataTrackServicesTest {
     @Test
     void testAddAndGetAllDataTrackServices() {
         // Setup
-        final TrackLite track = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title", "artist");
-        final TrackLite track2 = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title2", "artist2");
+        final TrackLite track = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title", "artist", "Album");
+        final TrackLite track2 = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title2", "artist2", "Album");
         final UserLite user = new UserLite(UUID.randomUUID(), "User1");
         final UserLite user2 = new UserLite(UUID.randomUUID(), "User2");
 
@@ -45,8 +45,8 @@ public class DataTrackServicesTest {
     void testUpdateTrack() throws TrackLiteNotFoundException {
         // Setup
         final UUID trackUUID = UUID.randomUUID();
-        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist");
-        final TrackLite track2 = new TrackLite(trackUUID, UUID.randomUUID(), "title2", "artist2");
+        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist", "Album");
+        final TrackLite track2 = new TrackLite(trackUUID, UUID.randomUUID(), "title2", "artist2", "Album");
         final UserLite user = new UserLite(UUID.randomUUID(), "User1");
 
         // Run the test
@@ -66,7 +66,7 @@ public class DataTrackServicesTest {
     void testDeleteTrack() throws Exception {
         // Setup
         final UUID trackUUID = UUID.randomUUID();
-        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist");
+        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist", "Album");
         final UserLite user = new UserLite(UUID.randomUUID(), "User1");
 
         // Run the test
@@ -81,7 +81,7 @@ public class DataTrackServicesTest {
     void testGetTrack() throws TrackLiteNotFoundException {
         // Setup
         final UUID trackUUID = UUID.randomUUID();
-        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist");
+        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist", "album");
         final UserLite user = new UserLite(UUID.randomUUID(), "User1");
 
         // Run the test
@@ -95,7 +95,7 @@ public class DataTrackServicesTest {
     void testGetOwner() throws Exception {
         // Setup
         final UUID trackUUID = UUID.randomUUID();
-        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist");
+        final TrackLite track = new TrackLite(trackUUID, UUID.randomUUID(), "title", "artist", "Album");
         final UserLite user = new UserLite(UUID.randomUUID(), "User1");
 
         // Run the test
@@ -112,7 +112,7 @@ public class DataTrackServicesTest {
 
         //for loop to add 10 tracks and users
         for (int i = 0; i < 10; i++) {
-            final TrackLite track = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title", "artist");
+            final TrackLite track = new TrackLite(UUID.randomUUID(), UUID.randomUUID(), "title", "artist", "Album");
             dataTrackServicesUnderTest.addTrack(track, user);
         }
 
