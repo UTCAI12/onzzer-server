@@ -7,7 +7,6 @@ import fr.utc.onzzer.common.dataclass.UserLite;
 import fr.utc.onzzer.common.dataclass.Comment;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessage;
 import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
-import fr.utc.onzzer.server.GlobalController;
 import fr.utc.onzzer.server.data.DataServicesProvider;
 import fr.utc.onzzer.server.data.exceptions.RequestedTrackNotFound;
 import fr.utc.onzzer.server.data.exceptions.TrackLiteNotFoundException;
