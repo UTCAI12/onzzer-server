@@ -96,6 +96,9 @@ public class ServerSocketManager extends Thread {
                 e.printStackTrace();
                 interrupted = true;
                 break;
+            } catch (Exception e) {
+                interrupted = true;
+                e.printStackTrace();
             }
         }
 
