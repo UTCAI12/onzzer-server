@@ -78,6 +78,9 @@ public class ServerCommunicationController extends Notifier {
         messageHandlers.put(SocketMessagesTypes.PUBLISH_COMMENT, (message, sender) -> {
             serverRequestHandler.publishComment(message, (Pair<UUID, Comment>) message.object, sender);
         });
+        messageHandlers.put(SocketMessagesTypes.USER_UPDATE, (message, sender) -> {
+            serverRequestHandler.editUser(message, (UserLite) message.object, sender);
+        });
     }
 
     /**
