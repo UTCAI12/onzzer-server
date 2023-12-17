@@ -161,8 +161,12 @@ public class ServerRequestHandler {
         Track track = (Track) message.object;
         try {
             List<UserLite> userList = serverController.getDataTrackServices().getUsersForRequestedTrack(track.getId());
+            List<UserLite> usersToBeRemoved = new ArrayList<UserLite>();
             for(UserLite user : userList) {
                 sendMessageToUser(new SocketMessage(SocketMessagesTypes.DOWNLOAD_TRACK, track), user);
+                usersToBeRemoved.add(user);
+            }
+            for (UserLite user : usersToBeRemoved){
                 serverController.getDataTrackServices().removeRequestedTrackForUser(track.getId(), user);
             }
         } catch (RequestedTrackNotFound e) {
