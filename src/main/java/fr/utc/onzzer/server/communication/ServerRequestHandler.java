@@ -103,9 +103,12 @@ public class ServerRequestHandler {
 
         try {
             // removing the user from the local "model"
+            this.serverController.getDataTrackServices().removeAllTracks(userLite);
             this.serverController.getDataUserServices().deleteUser(userLite);
         } catch (UserLiteNotFoundException e) {
             System.err.println("Server: The user does not exist");
+        } catch (TrackLiteNotFoundException e) {
+            System.err.println("Server: the track does not exist");
         }
 
         // notifying others users by forwarding the initial message
