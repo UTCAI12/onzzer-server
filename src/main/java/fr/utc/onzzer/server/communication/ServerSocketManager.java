@@ -39,7 +39,7 @@ public class ServerSocketManager extends Thread {
             // Timeout if no data arrives within TIMEOUT value
             socket.setSoTimeout(TIMEOUT);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Server: an error related to an I/O issue occurred. " + e.getMessage());
         }
 
         // Create a timer for pinging continuously the client
@@ -54,7 +54,7 @@ public class ServerSocketManager extends Thread {
                         this.cancel();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.err.println("Server: an error related to an I/O issue occurred. " + e.getMessage());
                 }
             }
         }, 5000, PING_INTERVAL);
@@ -93,12 +93,12 @@ public class ServerSocketManager extends Thread {
                 interrupted = true;
                 break;  // Exit the loop on disconnection
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                System.err.println("Server: an error related to an I/O issue occurred. " + e.getMessage());
                 interrupted = true;
                 break;
             } catch (Exception e) {
                 interrupted = true;
-                e.printStackTrace();
+                System.err.println("Server: an unexpected error occurred. " + e.getMessage());
             }
         }
 
