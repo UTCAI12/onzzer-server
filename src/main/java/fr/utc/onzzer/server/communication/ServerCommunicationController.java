@@ -117,7 +117,7 @@ public class ServerCommunicationController extends Notifier {
                 new ServerSocketManager(clientSocket, this).start();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Server: cannot start a serverSocket. " + e.getMessage());
         }
     }
 }
