@@ -107,11 +107,23 @@ public class DataTrackServicesImpl extends Listenable implements DataTrackServic
 
     @Override
     public List<TrackLite> getAllTracks() {
-        return dataRepository.getUsersAndTracks().values().stream()
-                .toList()
-                .stream()
+
+        Map<UserLite, List<TrackLite>> usersAndTracks = dataRepository.getUsersAndTracks();
+
+        Set<UUID> trackIdsInResult = new HashSet<>();
+        List<TrackLite> availableTracks = new ArrayList<>();
+
+        usersAndTracks.values().stream()
                 .flatMap(List::stream)
-                .toList();
+                .forEach(track -> {
+                    // Vérifier si l'ID du track n'est pas déjà présent dans la liste de résultats
+                    if (!trackIdsInResult.contains(track.getId())) {
+                        availableTracks.add(track);
+                        trackIdsInResult.add(track.getId());
+                    }
+                });
+
+        return availableTracks;
     }
 
     // Link between DownloadedTrack and UserLite(s)

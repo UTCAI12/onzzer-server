@@ -36,8 +36,10 @@ public class DataTrackServicesTest {
         // test to add a track with the same id and user ( should not be added )
         dataTrackServicesUnderTest.addTrack(track, user);
 
-        // verify if track added twice
-        Assertions.assertEquals(dataTrackServicesUnderTest.getAllTracks().size(), 3);
+        // at this step there is 3 tracks added by two users, and two identical tracks added by two users different
+
+        // verify if the track2 is added by two users is only returned once by getAllTracks
+        Assertions.assertEquals(dataTrackServicesUnderTest.getAllTracks().size(), 2);
 
     }
 
