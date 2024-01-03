@@ -3,16 +3,19 @@ package fr.utc.onzzer.server.hmi;
 import fr.utc.onzzer.common.dataclass.ModelUpdateTypes;
 import fr.utc.onzzer.common.dataclass.TrackLite;
 import fr.utc.onzzer.common.dataclass.UserLite;
+import fr.utc.onzzer.common.dataclass.communication.SocketMessagesTypes;
 import fr.utc.onzzer.server.GlobalController;
 import fr.utc.onzzer.server.communication.events.SocketMessageDirection;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class MainViewController {
 
@@ -77,10 +80,20 @@ public class MainViewController {
     @FXML
     private TableColumn colOutMessagesObject;
 
+    @FXML
+    private CheckBox chkInShowPing;
+
+    @FXML
+    private CheckBox chkOutShowPing;
+
     /* General attributes */
     private final GlobalController controller;
 
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    private ArrayList<MessageTable> inMessages = new ArrayList<>();
+
+    private ArrayList<MessageTable> outMessages = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -103,7 +116,13 @@ public class MainViewController {
         colOutMessagesTo.setCellValueFactory(new PropertyValueFactory<>("from"));
         colOutMessagesObject.setCellValueFactory(new PropertyValueFactory<>("object"));
 
+        chkInShowPing.setOnMouseClicked(e -> {
+            this.updateInMessages();
+        });
 
+        chkOutShowPing.setOnMouseClicked(e -> {
+            this.updateOutMessages();
+        });
     }
 
     public static class MessageTable {
@@ -251,11 +270,31 @@ public class MainViewController {
         controller.getDataServicesProvider().getDataTrackServices().getAllTracks().forEach(track -> {
 
                 String id = track.getId().toString();
-                String userId = track.getUser().toString();
+                String userId = track.getUserId().toString();
                 String title = track.getTitle();
                 String author = track.getAuthor();
 
                 tableTracks.getItems().add(new TrackTable(id, userId, title, author));
+        });
+    }
+
+    private void updateInMessages() {
+        tableInMessages.getItems().clear();
+        inMessages.forEach(messageTable -> {
+            if (!this.chkInShowPing.isSelected() && messageTable.getType().equals(SocketMessagesTypes.USER_PING.toString()))
+                return;
+
+            tableInMessages.getItems().add(messageTable);
+        });
+    }
+
+    private void updateOutMessages() {
+        tableOutMessages.getItems().clear();
+        outMessages.forEach(messageTable -> {
+            if (!this.chkOutShowPing.isSelected() && messageTable.getType().equals(SocketMessagesTypes.SERVER_PING.toString()))
+                return;
+
+            tableOutMessages.getItems().add(messageTable);
         });
     }
 
@@ -266,12 +305,21 @@ public class MainViewController {
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
-                    String from = senderSocketMessage.sender().getUser().getUsername();
+
+                    String from = "Unknow";
+                    if (senderSocketMessage.sender().getUser() != null)
+                        from = senderSocketMessage.sender().getUser().getUsername();
+
                     String object = "None";
                     if (senderSocketMessage.message().object != null)
                         object = senderSocketMessage.message().object.toString();
 
                     MessageTable messageTable = new MessageTable(date, type, from, object);
+
+                    inMessages.add(messageTable);
+
+                    if (!this.chkInShowPing.isSelected() && type.equals(SocketMessagesTypes.USER_PING.toString()))
+                        return;
 
                     tableInMessages.getItems().add(messageTable);
                 },
@@ -282,26 +330,34 @@ public class MainViewController {
                 (senderSocketMessage) -> {
                     String date = this.dtf.format(LocalDateTime.now());
                     String type = senderSocketMessage.message().messageType.toString();
-                    String from = senderSocketMessage.sender().getUser().getUsername();
+
+                    String to = "Unknow";
+                    if (senderSocketMessage.sender().getUser() != null)
+                        to = senderSocketMessage.sender().getUser().getUsername();
+
                     String object = "None";
                     if (senderSocketMessage.message().object != null)
                         object = senderSocketMessage.message().object.toString();
 
-                    MessageTable messageTable = new MessageTable(date, type, from, object);
+                    MessageTable messageTable = new MessageTable(date, type, to, object);
 
                     // Ajouter le message à la table
+                    outMessages.add(messageTable);
+
+                    if (!this.chkOutShowPing.isSelected() && type.equals(SocketMessagesTypes.SERVER_PING.toString()))
+                        return;
+
                     tableOutMessages.getItems().add(messageTable);
                 },
                 SocketMessageDirection.OUT
         );
 
-//        // TODO enable these lines when Tracks and User Services interfaces will extends "Service "
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.NEW_USER);
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.UPDATE_USER);
-//        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.DELETE_USER);
-//
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.NEW_TRACK);
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
-//        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.NEW_USER);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.UPDATE_USER);
+        controller.getDataServicesProvider().getDataUserServices().addListener((user) -> updateUsers(), UserLite.class, ModelUpdateTypes.DELETE_USER);
+
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.NEW_TRACK);
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.UPDATE_TRACK);
+        controller.getDataServicesProvider().getDataTrackServices().addListener((track) -> updateTracks(), TrackLite.class, ModelUpdateTypes.DELETE_TRACK);
     }
 }
